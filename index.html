@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>GeoKereső Pro v2.0</title>
+  <title>GeoKereső Pro v3.0</title>
   
   <!-- Tailwind & Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +18,7 @@
 
   <style>
     :root {
-      --bg: #070b14;
+      --bg: #050810;
       --panel: rgba(13, 20, 35, 0.85);
       --panel-border: rgba(255, 255, 255, 0.1);
       --green: #22c55e;
@@ -44,7 +44,7 @@
     .screen.active { display: flex; flex-direction: column; }
 
     .glass {
-      background: var(--panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--panel-border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
@@ -60,7 +60,7 @@
     .btn-success { background: linear-gradient(135deg, #16a34a, #4ade80); color: white; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
     .btn-success:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(34,197,94,0.5); filter: brightness(1.1); }
     .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(248,113,113,0.3); color: #fca5a5; }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.4); }
     .btn-google { background: white; color: #1f2937; box-shadow: 0 4px 15px rgba(255,255,255,0.2); font-weight: 900; }
     
     #bg-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
@@ -68,10 +68,13 @@
     /* StreetView */
     #sv-container { position: absolute; inset: 0; z-index: 1; background: #000; }
     #sv-iframe { width: 100%; height: 100%; border: none; pointer-events: auto; transition: opacity 0.5s; }
-    .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 2; }
+    .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 2; pointer-events: none; }
+    
+    #sv-return-btn { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 5; pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+    #sv-return-btn:hover { background: rgba(0,0,0,0.9); }
 
     /* HUD */
-    #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 1rem; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
     .hud-box { pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     
     .timer-alert { animation: pulse-red 0.5s infinite alternate; }
@@ -92,15 +95,15 @@
     @media(max-width: 768px) {
       #map-wrapper { width: calc(100vw - 1.5rem); height: 200px; bottom: 0.75rem; right: 0.75rem; opacity: 0.9; }
       #map-wrapper.expanded { height: 60vh; }
+      #hud { padding: 0.75rem; flex-direction: column-reverse; align-items: flex-end; gap: 0.5rem; }
+      #sv-return-btn { top: auto; bottom: 15rem; left: 0.75rem; }
     }
     #guess-map { flex: 1; width: 100%; cursor: crosshair; position: relative; }
     
-    /* Map Controls (Now Top Right & Left) */
     .map-controls-top { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000; display: flex; justify-content: space-between; pointer-events: none; }
     .map-controls-top > * { pointer-events: auto; }
     .map-btn { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; cursor: pointer; backdrop-filter: blur(5px); transition: background 0.2s, transform 0.1s; }
     .map-btn:hover { background: rgba(0,0,0,1); transform: scale(1.05); }
-    .map-btn:active { transform: scale(0.95); }
     
     #btn-guess {
       background: var(--green); color: white; border: none;
@@ -109,7 +112,6 @@
       display: none; text-transform: uppercase; letter-spacing: 1px;
     }
     #btn-guess:disabled { background: #334155; cursor: not-allowed; opacity: 0.8; }
-    #btn-guess:active:not(:disabled) { transform: scale(0.98); }
     #map-wrapper:hover #btn-guess, #map-wrapper.expanded #btn-guess { display: block; }
     @media(max-width: 768px) { #btn-guess { display: block; padding: 0.7rem 0; font-size: 1rem; } }
 
@@ -129,22 +131,30 @@
 
     #toast { position: fixed; top: 1.5rem; left: 50%; transform: translate(-50%, -150%); z-index: 9999; padding: 0.8rem 1.5rem; border-radius: 999px; background: rgba(15,23,42,0.95); border: 1px solid var(--panel-border); font-weight: 800; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.6); text-align: center; }
 
-    @keyframes spin-slow { to { transform: rotate(360deg); } }
     .anim-pop { animation: pop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     @keyframes pop { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes bounce-small { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-    /* Custom Input Range */
+    /* Custom Inputs */
     input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #fff; cursor: pointer; margin-top: -7px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
     input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(255,255,255,0.15); border-radius: 999px; }
 
-    /* Custom Select */
     .custom-select-wrapper { position: relative; user-select: none; }
     .custom-select { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--panel-border); padding: 0.8rem 1rem; border-radius: 0.75rem; cursor: pointer; font-weight: 800; font-size: 0.9rem; }
     .custom-options { position: absolute; top: 110%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 0.75rem; overflow: hidden; display: none; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
     .custom-options.open { display: block; animation: pop 0.2s ease-out forwards; }
     .custom-option { padding: 0.8rem 1rem; cursor: pointer; font-weight: 700; transition: background 0.2s; }
     .custom-option:hover { background: rgba(255,255,255,0.1); }
+
+    /* Online Status Dots */
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.5); }
+    .status-online { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.6); }
+    .status-offline { background: #64748b; }
+    
+    /* Level Bar */
+    .xp-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+    .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #8b5cf6); height: 100%; border-radius: 4px; transition: width 1s ease-out; }
   </style>
 </head>
 <body>
@@ -182,77 +192,96 @@
 </div>
 
 <!-- ================== MAIN MENU ================== -->
-<div id="screen-menu" class="screen p-4 md:p-8 overflow-y-auto">
-  <div class="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start mt-4 md:mt-10 pb-10">
+<div id="screen-menu" class="screen overflow-y-auto">
+  <div class="max-w-7xl mx-auto w-full p-4 md:p-8 mt-2 pb-10 flex flex-col gap-6">
     
-    <!-- Left Column (Profile & Leaderboard) -->
-    <div class="md:col-span-4 flex flex-col gap-6 anim-pop" style="animation-delay: 0.1s;">
-      <!-- Profile -->
-      <div class="glass p-6 rounded-[2rem] flex items-center gap-4 relative overflow-hidden cursor-pointer hover:bg-slate-800/50 transition group" onclick="showMyProfile()">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition"></div>
-        <img id="nav-avatar" src="" class="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-white/10 relative z-10">
-        <div class="relative z-10 min-w-0">
-          <h2 id="nav-name" class="font-black text-2xl truncate">Vendég</h2>
+    <!-- TOP BAR -->
+    <div class="glass px-6 py-4 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-4 anim-pop z-10">
+      <div class="flex items-center gap-4 cursor-pointer hover:opacity-80 transition" onclick="showMyProfile()">
+        <div class="relative">
+          <img id="nav-avatar" src="" class="w-14 h-14 rounded-full border-2 border-white/20 object-cover shadow-lg">
+          <div class="absolute bottom-0 right-0 status-dot status-online"></div>
+        </div>
+        <div>
+          <h2 id="nav-name" class="font-black text-xl leading-tight">Vendég</h2>
           <div class="flex items-center gap-2 mt-1">
-            <span id="nav-elo" class="font-black text-sm text-blue-300">0 Elo</span>
-            <span id="nav-rank-name" class="text-[10px] font-black px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase tracking-widest">Bronz</span>
+            <span id="nav-level" class="text-xs font-black text-purple-300 bg-purple-500/20 px-2 rounded-full border border-purple-500/30">Szint 1</span>
+            <span id="nav-elo" class="font-black text-xs text-blue-300">0 Elo</span>
+            <span id="nav-rank-name" class="text-[9px] font-black px-2 py-0.5 rounded bg-slate-800 text-slate-300 uppercase tracking-widest">Bronz</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Leaderboard Preview -->
-      <div class="glass p-6 rounded-[2rem] flex-1 flex flex-col min-h-[350px]">
-        <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
-          <h3 class="font-black text-slate-300 uppercase tracking-widest text-sm flex items-center">
-            <i class="fa-solid fa-trophy text-yellow-400 mr-2 text-lg"></i> Top 10
-          </h3>
-          <button class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full" onclick="openFullLeaderboard()">Összes <i class="fa-solid fa-expand ml-1"></i></button>
-        </div>
-        <div id="leaderboard-preview-list" class="flex-1 overflow-y-auto space-y-2 pr-2">
-          <div class="text-center text-slate-500 text-sm mt-10"><i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 block"></i> Betöltés...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column (Game Modes) -->
-    <div class="md:col-span-8 flex flex-col gap-5 anim-pop">
-      <!-- Ranked Mode -->
-      <div class="glass p-8 rounded-[2rem] relative overflow-hidden group cursor-pointer border border-white/5 hover:border-yellow-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80" onclick="menuAction('ranked')" id="card-ranked">
-        <div class="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 group-hover:rotate-12 transform">
-          <i class="fa-solid fa-chess-knight text-[16rem]"></i>
-        </div>
-        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-          <div class="bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 w-20 h-20 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)] shrink-0">
-            <i class="fa-solid fa-crosshairs text-4xl text-white"></i>
-          </div>
-          <div>
-            <h2 class="text-3xl font-black mb-2 flex items-center gap-3">Ranked 1v1 <span id="ranked-badge" class="text-[10px] bg-red-500 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md">Éles</span></h2>
-            <p class="text-slate-300 font-bold text-sm max-w-md leading-relaxed">Fix 5 kör, Egész Világ, 30mp. Ha az ellenfél tippel, az időd felgyorsul! Küzdj meg a ranglista első helyéért!</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <!-- Party Mode -->
-        <div class="glass p-8 rounded-[2rem] cursor-pointer border border-white/5 hover:border-purple-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80" onclick="menuAction('party')">
-          <div class="bg-purple-500/20 border border-purple-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mb-5">
-            <i class="fa-solid fa-users-rays text-3xl text-purple-400"></i>
-          </div>
-          <h2 class="text-2xl font-black mb-2">Party Szoba</h2>
-          <p class="text-slate-400 font-bold text-sm">Hívd meg a barátaidat, állítsátok be a saját szabályaitokat!</p>
-        </div>
-
-        <!-- Solo Mode -->
-        <div class="glass p-8 rounded-[2rem] cursor-pointer border border-white/5 hover:border-green-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80" onclick="menuAction('solo')">
-          <div class="bg-green-500/20 border border-green-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mb-5">
-            <i class="fa-solid fa-map-location-dot text-3xl text-green-400"></i>
-          </div>
-          <h2 class="text-2xl font-black mb-2">Gyakorlás</h2>
-          <p class="text-slate-400 font-bold text-sm">Fedezd fel a világot saját tempódban, tét és időkorlát nélkül.</p>
         </div>
       </div>
       
-      <button class="text-sm text-slate-500 font-bold text-left mt-2 hover:text-red-400 transition inline-flex items-center w-max" onclick="logout()"><i class="fa-solid fa-power-off mr-2"></i> Kijelentkezés</button>
+      <div class="flex items-center gap-6">
+        <div class="text-center bg-slate-900/50 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+          <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Jelenleg Online</div>
+          <div class="font-black text-green-400 text-lg flex items-center justify-center gap-2">
+            <i class="fa-solid fa-users"></i> <span id="online-count">1</span> játékos
+          </div>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition" onclick="logout()" title="Kijelentkezés">
+          <i class="fa-solid fa-power-off"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch anim-pop" style="animation-delay: 0.1s;">
+      
+      <!-- GAME MODES (Left 8 columns) -->
+      <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Ranked Card (Full Width in its container) -->
+        <div class="md:col-span-2 glass p-8 md:p-10 rounded-[2.5rem] relative overflow-hidden group cursor-pointer border border-white/5 hover:border-yellow-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80 shadow-2xl" onclick="menuAction('ranked')" id="card-ranked">
+          <div class="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 group-hover:rotate-12 transform">
+            <i class="fa-solid fa-chess-knight text-[20rem]"></i>
+          </div>
+          <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8">
+            <div class="bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 w-24 h-24 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.4)] shrink-0 transform group-hover:scale-105 transition duration-300">
+              <i class="fa-solid fa-crosshairs text-5xl text-white"></i>
+            </div>
+            <div>
+              <h2 class="text-4xl font-black mb-3 flex items-center gap-4 text-white">
+                Ranked 1v1 
+                <span id="ranked-badge" class="text-xs bg-red-500 px-3 py-1 rounded-md text-white font-black uppercase tracking-widest shadow-md">Éles</span>
+              </h2>
+              <p class="text-slate-300 font-bold text-base max-w-lg leading-relaxed">Fix 5 kör, Egész Világ, 30mp. Ha az ellenfél tippel, az időd felgyorsul! Küzdj meg a világranglista első helyéért és szerezz dicsőséget! <span class="text-red-400 font-black block mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Figyelem: A kilépés automatikus vereséget von maga után!</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Party Mode -->
+        <div class="glass p-8 rounded-[2rem] cursor-pointer border border-white/5 hover:border-purple-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80 group flex flex-col" onclick="menuAction('party')">
+          <div class="bg-purple-500/20 border border-purple-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-500/30 transition">
+            <i class="fa-solid fa-users-rays text-3xl text-purple-400"></i>
+          </div>
+          <h2 class="text-2xl font-black mb-3">Party Szoba</h2>
+          <p class="text-slate-400 font-bold text-sm flex-1">Hívd meg a barátaidat, állítsátok be a saját szabályaitokat, és versenyezzetek privátban!</p>
+        </div>
+
+        <!-- Solo Mode -->
+        <div class="glass p-8 rounded-[2rem] cursor-pointer border border-white/5 hover:border-green-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80 group flex flex-col" onclick="menuAction('solo')">
+          <div class="bg-green-500/20 border border-green-500/30 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-500/30 transition">
+            <i class="fa-solid fa-map-location-dot text-3xl text-green-400"></i>
+          </div>
+          <h2 class="text-2xl font-black mb-3">Gyakorlás</h2>
+          <p class="text-slate-400 font-bold text-sm flex-1">Fedezd fel a világot saját tempódban, tét és időkorlát nélkül. Tökéletes a gyakorláshoz.</p>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD SIDEBAR (Right 4 columns) -->
+      <div class="lg:col-span-4 glass p-6 md:p-8 rounded-[2.5rem] flex flex-col max-h-[600px]">
+        <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+          <h3 class="font-black text-white text-xl flex items-center">
+            <i class="fa-solid fa-trophy text-yellow-400 mr-3 text-2xl"></i> Top Játékosok
+          </h3>
+          <button class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-full transition" onclick="openFullLeaderboard()">Összes <i class="fa-solid fa-expand ml-1"></i></button>
+        </div>
+        <div id="leaderboard-preview-list" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+          <div class="text-center text-slate-500 text-sm mt-10"><i class="fa-solid fa-circle-notch animate-spin text-3xl mb-3 block"></i> Betöltés...</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -278,7 +307,7 @@
       <h2 class="text-3xl font-black flex items-center gap-3"><i class="fa-solid fa-earth-americas text-blue-400"></i> Világranglista</h2>
       <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-10 h-10 flex items-center justify-center transition" onclick="closeOverlay('overlay-leaderboard')"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-2" id="full-leaderboard-list"></div>
+    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-3" id="full-leaderboard-list"></div>
   </div>
 </div>
 
@@ -287,32 +316,43 @@
   <div class="glass p-8 rounded-[2.5rem] max-w-md w-full anim-pop relative overflow-hidden">
     <button class="absolute top-4 right-4 text-slate-400 hover:text-white bg-black/20 rounded-full w-8 h-8 flex items-center justify-center transition z-20" onclick="closeOverlay('overlay-profile')"><i class="fa-solid fa-xmark"></i></button>
     
-    <div class="text-center relative z-10 mb-8">
+    <div class="text-center relative z-10 mb-6">
       <div class="relative inline-block">
         <img id="prof-avatar" src="" class="w-24 h-24 rounded-full border-4 border-slate-700 shadow-xl object-cover mx-auto">
-        <div id="prof-rank-badge" class="absolute -bottom-3 left-1/2 -translate-x-1/2 text-xs font-black px-3 py-1 rounded-full border-2 border-slate-900 shadow-lg text-white"></div>
+        <div id="prof-status" class="absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-slate-900 status-online"></div>
       </div>
       <h2 id="prof-name" class="text-3xl font-black mt-4 mb-1">Név</h2>
-      <div class="text-blue-400 font-black text-lg"><span id="prof-elo">0</span> Elo</div>
+      <div class="flex justify-center items-center gap-3">
+        <div class="text-blue-400 font-black text-lg"><span id="prof-elo">0</span> Elo</div>
+        <div id="prof-rank-badge" class="text-xs font-black px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-white shadow-lg">Rank</div>
+      </div>
+    </div>
+    
+    <div class="mb-6 relative z-10 bg-black/40 p-4 rounded-2xl border border-white/5">
+      <div class="flex justify-between text-xs font-black text-slate-300 mb-1">
+        <span id="prof-level-txt">Szint 1</span>
+        <span>Összes XP: <span id="prof-xp" class="text-purple-400">0</span></span>
+      </div>
+      <div class="xp-bar-bg"><div id="prof-xp-bar" class="xp-bar-fill w-[0%]"></div></div>
     </div>
 
     <div class="grid grid-cols-2 gap-4 relative z-10">
       <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center">
         <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Ranked Win Rate</div>
         <div class="text-xl font-black text-green-400" id="prof-winrate">0%</div>
-        <div class="text-xs text-slate-500 font-bold mt-1"><span id="prof-wins">0</span> W / <span id="prof-losses">0</span> L</div>
+        <div class="text-xs text-slate-500 font-bold mt-1"><span id="prof-wins" class="text-green-500">0</span> W / <span id="prof-losses" class="text-red-500">0</span> L</div>
       </div>
       <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center">
         <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Játszott Meccsek</div>
-        <div class="text-xl font-black text-white" id="prof-games">0</div>
+        <div class="text-xl font-black text-white mt-2" id="prof-games">0</div>
       </div>
       <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center">
         <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Átl. Tévedés</div>
-        <div class="text-xl font-black text-yellow-400" id="prof-avgdist">0 km</div>
+        <div class="text-xl font-black text-yellow-400 mt-2" id="prof-avgdist">0 km</div>
       </div>
       <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center">
         <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Játszott Idő</div>
-        <div class="text-xl font-black text-purple-400" id="prof-playtime">0 óra</div>
+        <div class="text-xl font-black text-purple-400 mt-2" id="prof-playtime">0 óra</div>
       </div>
     </div>
   </div>
@@ -347,7 +387,7 @@
         <h3 class="font-black text-xl mb-1">Új szoba létrehozása</h3>
         <p class="text-sm font-bold text-slate-400">Legyél te a Host, állítsd be a szabályokat!</p>
       </div>
-      <div class="bg-slate-900/60 p-8 rounded-[2rem] text-center border border-white/5 shadow-inner">
+      <div class="bg-slate-900/60 p-8 rounded-[2rem] text-center border border-white/5 shadow-inner flex flex-col justify-center">
         <i class="fa-solid fa-right-to-bracket text-5xl text-blue-400 mb-4"></i>
         <h3 class="font-black text-xl mb-4">Csatlakozás kóddal</h3>
         <div class="flex gap-2">
@@ -367,7 +407,7 @@
         </div>
         <div class="bg-slate-900/50 rounded-[2rem] p-5 border border-white/5 flex-1 min-h-[250px] flex flex-col">
           <h3 class="font-black text-xs text-slate-400 uppercase tracking-widest mb-4">Játékosok (<span id="lobby-count">1</span>)</h3>
-          <ul id="lobby-players-list" class="space-y-2 overflow-y-auto pr-2 flex-1"></ul>
+          <ul id="lobby-players-list" class="space-y-2 overflow-y-auto pr-2 flex-1 custom-scrollbar"></ul>
         </div>
       </div>
       
@@ -389,7 +429,6 @@
           </div>
           <div class="relative z-20">
             <label class="text-sm font-black block mb-2">Terület</label>
-            <!-- Custom Select HTML -->
             <div class="custom-select-wrapper" id="region-custom-select">
               <div class="custom-select" onclick="toggleCustomSelect('region-custom-select')">
                 <span id="region-selected-text">🌍 Egész Világ</span> <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -414,15 +453,15 @@
 
 <!-- Solo -->
 <div id="overlay-solo" class="overlay">
-  <div class="glass p-8 rounded-[2rem] max-w-sm w-full anim-pop border border-green-500/20">
-    <h2 class="text-2xl font-black mb-6 flex items-center gap-2"><i class="fa-solid fa-map-location-dot text-green-400"></i> Gyakorlás</h2>
+  <div class="glass p-8 rounded-[2.5rem] max-w-md w-full anim-pop border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)]">
+    <h2 class="text-3xl font-black mb-6 flex items-center gap-3"><i class="fa-solid fa-map-location-dot text-green-400"></i> Gyakorlás</h2>
     <div class="space-y-6 mb-8">
       <div>
-        <div class="flex justify-between text-sm font-black mb-2"><label>Körök száma</label><span id="solo-lbl-rounds" class="text-blue-400">5</span></div>
+        <div class="flex justify-between text-sm font-black mb-2"><label>Körök száma</label><span id="solo-lbl-rounds" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">5</span></div>
         <input type="range" id="solo-rounds" min="1" max="10" value="5" oninput="document.getElementById('solo-lbl-rounds').innerText=this.value">
       </div>
       <div>
-        <div class="flex justify-between text-sm font-black mb-2"><label>Idő / kör</label><span id="solo-lbl-time" class="text-blue-400">Végtelen</span></div>
+        <div class="flex justify-between text-sm font-black mb-2"><label>Idő / kör</label><span id="solo-lbl-time" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Végtelen</span></div>
         <input type="range" id="solo-time" min="0" max="180" step="10" value="0" oninput="document.getElementById('solo-lbl-time').innerText=this.value==0?'Végtelen':this.value+' mp'">
       </div>
       <div class="relative">
@@ -441,34 +480,8 @@
       </div>
     </div>
     <div class="flex gap-3 relative z-0">
-      <button class="btn btn-danger flex-1 py-3" onclick="closeOverlay('overlay-solo')">Mégse</button>
-      <button class="btn btn-success flex-1 py-3 shadow-[0_0_20px_rgba(34,197,94,0.4)]" onclick="startSoloGame()"><i class="fa-solid fa-play mr-1"></i> Start</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================== ADMIN PANEL ================== -->
-<div id="overlay-admin" class="overlay" style="z-index: 999;">
-  <div class="glass p-6 md:p-8 rounded-[2rem] max-w-4xl w-full anim-pop max-h-[90vh] flex flex-col border border-red-500/50">
-    <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
-      <h2 class="text-2xl font-black text-red-400"><i class="fa-solid fa-user-shield mr-2"></i> Admin Panel</h2>
-      <button class="text-slate-400 hover:text-white" onclick="closeOverlay('overlay-admin')"><i class="fa-solid fa-xmark text-xl"></i></button>
-    </div>
-    <div class="flex gap-4 mb-4">
-      <button class="btn bg-slate-800 hover:bg-slate-700 text-white" onclick="loadAdminData()"><i class="fa-solid fa-arrows-rotate"></i> Frissítés</button>
-      <div class="flex-1"></div>
-    </div>
-    <div class="grid md:grid-cols-2 gap-6 flex-1 overflow-hidden">
-      <!-- Játékosok -->
-      <div class="bg-slate-900/50 rounded-xl p-4 border border-white/5 flex flex-col">
-        <h3 class="font-black mb-3 text-slate-300">Játékosok</h3>
-        <div class="overflow-y-auto flex-1 space-y-2 pr-2" id="admin-users-list">Nincs adat</div>
-      </div>
-      <!-- Szobák -->
-      <div class="bg-slate-900/50 rounded-xl p-4 border border-white/5 flex flex-col">
-        <h3 class="font-black mb-3 text-slate-300">Aktív Szobák</h3>
-        <div class="overflow-y-auto flex-1 space-y-2 pr-2" id="admin-rooms-list">Nincs adat</div>
-      </div>
+      <button class="btn btn-danger flex-1 py-4" onclick="closeOverlay('overlay-solo')">Mégse</button>
+      <button class="btn btn-success flex-1 py-4 shadow-[0_0_20px_rgba(34,197,94,0.4)]" onclick="startSoloGame()"><i class="fa-solid fa-play mr-2"></i> Indítás</button>
     </div>
   </div>
 </div>
@@ -483,6 +496,7 @@
       <p class="mt-6 font-black tracking-[0.2em] text-slate-400 text-xs uppercase">Helyszín betöltése...</p>
     </div>
     <iframe id="sv-iframe" src="" allowfullscreen></iframe>
+    <button id="sv-return-btn" class="btn" onclick="resetStreetView()" title="Vissza a kezdőpontra"><i class="fa-solid fa-location-crosshairs text-green-400"></i> Kezdőpont</button>
   </div>
 
   <div id="hud">
@@ -508,7 +522,7 @@
   <div id="map-wrapper" class="glass">
     <div class="map-controls-top">
       <button id="btn-map-toggle" class="map-btn" onclick="toggleMapType()"><i class="fa-solid fa-satellite mr-1"></i>Műhold</button>
-      <button class="map-btn px-3" onclick="resetMapView()" title="Középre"><i class="fa-solid fa-location-crosshairs"></i></button>
+      <button class="map-btn px-3" onclick="resetMapView()" title="Középre"><i class="fa-solid fa-crosshairs"></i></button>
     </div>
     <div id="guess-map"></div>
     <div class="p-2 bg-black/60 backdrop-blur-md border-t border-white/10 z-[1000] relative">
@@ -538,11 +552,11 @@
       <div id="result-map" class="w-full h-full"></div>
     </div>
 
-    <div class="bg-slate-900/50 rounded-2xl p-4 max-h-[180px] overflow-y-auto mb-6 border border-white/5 shadow-inner">
+    <div class="bg-slate-900/50 rounded-2xl p-4 max-h-[180px] overflow-y-auto mb-6 border border-white/5 shadow-inner custom-scrollbar">
       <ul id="res-players-list" class="space-y-2 pr-2"></ul>
     </div>
 
-    <button id="btn-next-round" class="btn btn-primary w-full py-4 text-lg" onclick="nextRoundAction()" style="display:none;">Következő kör <i class="fa-solid fa-arrow-right ml-2"></i></button>
+    <button id="btn-next-round" class="btn btn-primary w-full py-4 text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)]" onclick="nextRoundAction()" style="display:none;">Következő kör <i class="fa-solid fa-arrow-right ml-2"></i></button>
     <div id="res-waiting" class="text-center text-slate-400 font-black py-4 bg-slate-900/50 rounded-xl border border-white/5" style="display:none;">
       <i class="fa-solid fa-circle-notch animate-spin mr-2"></i> Várakozás a többiekre...
     </div>
@@ -551,18 +565,19 @@
 
 <!-- ================== FINAL RESULTS OVERLAY ================== -->
 <div id="overlay-final" class="overlay" style="z-index: 70;">
-  <div class="glass w-full max-w-4xl rounded-[3rem] p-8 md:p-12 text-center max-h-[95vh] overflow-y-auto anim-pop relative border border-yellow-500/20">
+  <div class="glass w-full max-w-4xl rounded-[3rem] p-8 md:p-12 text-center max-h-[95vh] overflow-y-auto anim-pop relative border border-yellow-500/20 custom-scrollbar">
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-500/10 rounded-full blur-[100px] pointer-events-none"></div>
     
-    <div class="text-6xl mb-4 relative z-10 animate-bounce">🏆</div>
-    <h1 class="text-5xl font-black mb-10 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 relative z-10 drop-shadow-lg">Végeredmény</h1>
+    <div class="text-6xl mb-4 relative z-10 animate-[bounce-small_2s_ease-in-out_infinite]">🏆</div>
+    <h1 class="text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 relative z-10 drop-shadow-lg">Végeredmény</h1>
+    <p id="final-abandon-msg" class="text-red-400 font-black text-lg mb-8 relative z-10 uppercase tracking-widest hidden"></p>
     
     <!-- Podium -->
-    <div id="final-podium" class="flex justify-center items-end h-64 gap-2 md:gap-4 border-b border-white/10 pb-6 mb-8 relative z-10"></div>
+    <div id="final-podium" class="flex justify-center items-end h-64 gap-2 md:gap-6 border-b border-white/10 pb-6 mb-8 relative z-10"></div>
 
     <ul id="final-list" class="space-y-3 text-left mb-10 max-w-xl mx-auto relative z-10"></ul>
 
-    <button class="btn btn-primary px-10 py-5 text-lg relative z-10 w-full sm:w-auto shadow-[0_0_30px_rgba(59,130,246,0.3)]" onclick="leaveGame()"><i class="fa-solid fa-house mr-2"></i> Vissza a menübe</button>
+    <button class="btn btn-primary px-12 py-5 text-lg relative z-10 w-full sm:w-auto shadow-[0_0_30px_rgba(59,130,246,0.3)]" onclick="leaveGame()"><i class="fa-solid fa-house mr-2"></i> Vissza a menübe</button>
   </div>
 </div>
 
@@ -612,20 +627,24 @@
     locations: [], round: 1, score: 0,
     settings: { rounds: 5, timePerRound: 60, region: 'world' },
     timer: null, timeLeft: 0, timerSpeed: 1, hasGuessed: false, mapSatellite: false, activeRoundKey: null,
-    playTimeStart: 0,
+    playTimeStart: 0, presenceInterval: null,
     userData: { 
       name: 'Vendég', elo: 0, avatar: '', isGoogle: false, 
-      gamesPlayed: 0, rankedWins: 0, rankedLosses: 0, totalDist: 0, totalGuesses: 0, playTimeSeconds: 0 
+      gamesPlayed: 0, rankedWins: 0, rankedLosses: 0, totalDist: 0, totalGuesses: 0, totalScore: 0, playTimeSeconds: 0, lastSeen: 0 
     }
   };
 
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+  function getLevel(xp) { return Math.floor(Math.sqrt((xp||0) / 1000)) + 1; }
+  function getXpForNextLevel(lvl) { return Math.pow(lvl, 2) * 1000; }
+  function getXpForPrevLevel(lvl) { return Math.pow(lvl-1, 2) * 1000; }
+
   // --- 3D GALAXY BACKGROUND WITH EARTH ---
   function init3DGlobe() {
     const c = $('bg-canvas');
     const sc = new THREE.Scene();
-    sc.fog = new THREE.FogExp2(0x070b14, 0.001);
+    sc.fog = new THREE.FogExp2(0x050810, 0.001);
 
     const cam = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 2000);
     cam.position.z = 35;
@@ -633,8 +652,7 @@
     ren.setSize(window.innerWidth, window.innerHeight);
     ren.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    // Add light for the Earth
-    sc.add(new THREE.AmbientLight(0xffffff, 0.5));
+    sc.add(new THREE.AmbientLight(0xffffff, 0.4));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(5, 3, 5);
     sc.add(dirLight);
@@ -645,31 +663,33 @@
     const earth = new THREE.Mesh(earthGeo, earthMat);
     sc.add(earth);
 
+    // ATMOSPHERE GLOW
+    const atmosGeo = new THREE.SphereGeometry(12.6, 64, 64);
+    const atmosMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, side: THREE.BackSide });
+    const atmos = new THREE.Mesh(atmosGeo, atmosMat);
+    sc.add(atmos);
+
     new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg', (tex) => {
-      earthMat.map = tex;
-      earthMat.needsUpdate = true;
+      earthMat.map = tex; earthMat.needsUpdate = true;
     });
 
-    // Core Galaxy Particles
+    // Core Galaxy Particles (White Stars)
     const sg = new THREE.BufferGeometry();
     const sp = new Float32Array(15000);
     const scols = new Float32Array(15000);
-    const colorA = new THREE.Color(0x3b82f6);
-    const colorB = new THREE.Color(0x8b5cf6);
-    const colorC = new THREE.Color(0xec4899);
-
+    
     for(let i=0; i<5000; i++) {
       const i3 = i*3;
-      const r = 20 + Math.random() * 100; // further out from earth
+      const r = 20 + Math.random() * 120;
       const theta = Math.random() * Math.PI * 2;
       const phi = (Math.random() - 0.5) * 2;
       sp[i3] = r * Math.cos(theta) * Math.cos(phi);
       sp[i3+1] = r * Math.sin(phi) * 1.5;
       sp[i3+2] = r * Math.sin(theta) * Math.cos(phi);
-
-      const mix = Math.random();
-      const col = mix < 0.33 ? colorA : (mix < 0.66 ? colorB : colorC);
-      scols[i3] = col.r; scols[i3+1] = col.g; scols[i3+2] = col.b;
+      
+      // White/Grey variations for stars
+      const brightness = 0.5 + Math.random() * 0.5;
+      scols[i3] = brightness; scols[i3+1] = brightness; scols[i3+2] = brightness;
     }
     sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
     sg.setAttribute('color', new THREE.BufferAttribute(scols, 3));
@@ -681,7 +701,7 @@
     context.fillStyle = gradient; context.fillRect(0, 0, 16, 16);
     const starTexture = new THREE.CanvasTexture(canvas);
 
-    const smat = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, map: starTexture, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false });
+    const smat = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, map: starTexture, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false });
     const stars = new THREE.Points(sg, smat);
     sc.add(stars);
     
@@ -693,8 +713,9 @@
     (function loop() {
       requestAnimationFrame(loop);
       earth.rotation.y += 0.001;
-      stars.rotation.y -= 0.0005;
-      stars.rotation.x += 0.0002;
+      atmos.rotation.y += 0.0012;
+      stars.rotation.y -= 0.0003;
+      stars.rotation.x += 0.0001;
       ren.render(sc, cam);
     })();
   }
@@ -711,23 +732,18 @@
     document.querySelector(`#${wrapId} .custom-options`).classList.remove('open');
     if(wrapId === 'region-custom-select') updateSettingsUI();
   };
-  // Init default data values safely
-  document.addEventListener("DOMContentLoaded", () => {
-    const r1 = document.querySelector('#region-custom-select .custom-select'); if(r1) r1.dataset.value = 'world';
-    const r2 = document.querySelector('#solo-region-select .custom-select'); if(r2) r2.dataset.value = 'world';
-  });
   
   document.addEventListener('click', (e) => {
     if(!e.target.closest('.custom-select-wrapper')) { document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('open')); }
   });
 
-  // --- LOCATIONS DB ---
+  // --- LOCATIONS DB (Updated exactly on roads for StreetView) ---
   const LOCS = {
-    famous: [{lat: 48.8584, lng: 2.2945, name: "Eiffel-torony"}, {lat: 40.7589, lng: -73.9851, name: "Times Square"}, {lat: 41.8902, lng: 12.4922, name: "Colosseum"}, {lat: 27.1751, lng: 78.0421, name: "Taj Mahal"}, {lat: -33.8568, lng: 151.2153, name: "Operaház, Sydney"}, {lat: 35.6586, lng: 139.7454, name: "Tokió Tower"}, {lat: -22.9519, lng: -43.2104, name: "Cristo Redentor"}],
-    europe: [{lat: 47.4979, lng: 19.0402, name: "Budapest"}, {lat: 51.5074, lng: -0.1278, name: "London"}, {lat: 52.52, lng: 13.405, name: "Berlin"}, {lat: 40.4168, lng: -3.7038, name: "Madrid"}, {lat: 48.2082, lng: 16.3738, name: "Bécs"}, {lat: 41.9028, lng: 12.4964, name: "Róma"}, {lat: 50.0755, lng: 14.4378, name: "Prága"}],
-    hungary: [{lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.5316, lng: 21.6273, name: "Debrecen"}, {lat: 46.253, lng: 20.1414, name: "Szeged"}, {lat: 46.0727, lng: 18.2323, name: "Pécs"}, {lat: 47.6833, lng: 17.6351, name: "Győr"}, {lat: 47.9026, lng: 20.3733, name: "Egri Vár"}, {lat: 46.9064, lng: 17.8905, name: "Tihany"}]
+    famous: [{lat: 48.858093, lng: 2.294694, name: "Eiffel-torony"}, {lat: 40.758896, lng: -73.985130, name: "Times Square"}, {lat: 41.890251, lng: 12.492373, name: "Colosseum"}, {lat: 27.173891, lng: 78.042068, name: "Taj Mahal kapu"}, {lat: -33.856159, lng: 151.215256, name: "Operaház, Sydney"}, {lat: 35.658581, lng: 139.745438, name: "Tokió Tower"}, {lat: -22.951916, lng: -43.210487, name: "Cristo Redentor út"}],
+    europe: [{lat: 47.497913, lng: 19.040236, name: "Budapest, Lánchíd"}, {lat: 51.503324, lng: -0.119543, name: "London Eye"}, {lat: 52.516275, lng: 13.377704, name: "Brandenburgi kapu"}, {lat: 40.416775, lng: -3.703790, name: "Madrid, Sol"}, {lat: 48.2082, lng: 16.3738, name: "Bécs, Stephansplatz"}, {lat: 41.902782, lng: 12.496366, name: "Róma, Termini"}, {lat: 50.087811, lng: 14.420460, name: "Prága, Óváros"}],
+    hungary: [{lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.531604, lng: 21.627312, name: "Debrecen, Nagytemplom"}, {lat: 46.253, lng: 20.1414, name: "Szeged, Dóm tér"}, {lat: 46.072735, lng: 18.232266, name: "Pécs, Széchenyi tér"}, {lat: 47.683333, lng: 17.635122, name: "Győr, Városháza"}, {lat: 47.902633, lng: 20.373295, name: "Egri Vár bejárat"}, {lat: 46.9142, lng: 17.8821, name: "Tihany, Apátság"}]
   };
-  LOCS.world = [...LOCS.famous, ...LOCS.europe, ...LOCS.hungary, {lat: 34.0522, lng: -118.2437, name: "Los Angeles"}, {lat: -22.9068, lng: -43.1729, name: "Rio de Janeiro"}, {lat: 35.6762, lng: 139.6503, name: "Tokió"}, {lat: -34.6037, lng: -58.3815, name: "Buenos Aires"}];
+  LOCS.world = [...LOCS.famous, ...LOCS.europe, ...LOCS.hungary, {lat: 34.052235, lng: -118.243683, name: "Los Angeles"}, {lat: -22.906847, lng: -43.172896, name: "Rio de Janeiro"}, {lat: 35.6762, lng: 139.6503, name: "Tokió, Shinjuku"}, {lat: -34.603722, lng: -58.381592, name: "Buenos Aires, Obelisco"}];
 
   // --- UTILS ---
   function toast(msg, isErr=false) {
@@ -759,90 +775,26 @@
     return {n:'Mester', c:'text-purple-400 bg-purple-950/50 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]'};
   }
 
-  // --- ADMIN PANEL LOGIC ---
-  let secretBuffer = '';
-  // The secret word is 'adminruben'
-  const adminSecret = String.fromCharCode(97, 100, 109, 105, 110, 114, 117, 98, 101, 110);
-  
-  window.addEventListener('keydown', (e) => {
-    secretBuffer += e.key.toLowerCase();
-    if(secretBuffer.length > 20) secretBuffer = secretBuffer.slice(-20);
-    if(secretBuffer.includes(adminSecret)) {
-      secretBuffer = '';
-      openOverlay('overlay-admin');
-      window.loadAdminData();
-    }
-  });
-
-  window.loadAdminData = async () => {
-    try {
-      // Load Users
-      const uSnaps = await getDocs(collection(db, lbCol));
-      let usersHTML = '';
-      uSnaps.forEach(doc => {
-        const d = doc.data();
-        usersHTML += `
-          <div class="flex items-center justify-between bg-black/40 p-2 rounded-lg text-sm">
-            <span>${d.name} (${d.elo} Elo)</span>
-            <div class="flex gap-2">
-              <button class="text-blue-400 hover:text-white" onclick="setElo('${doc.id}', prompt('Új Elo:'))"><i class="fa-solid fa-pen"></i></button>
-              <button class="text-red-500 hover:text-red-400" onclick="wipeUser('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-        `;
-      });
-      $('admin-users-list').innerHTML = usersHTML || 'Nincsenek adatok';
-
-      // Load Rooms
-      const rSnaps = await getDocs(collection(db, roomsCol));
-      let roomsHTML = '';
-      rSnaps.forEach(doc => {
-        const d = doc.data();
-        roomsHTML += `
-          <div class="flex items-center justify-between bg-black/40 p-2 rounded-lg text-sm">
-            <span>ID: ${d.id} | Állapot: ${d.state}</span>
-            <button class="text-red-500 hover:text-red-400" onclick="stopMatch('${doc.id}')"><i class="fa-solid fa-ban"></i> Leállítás</button>
-          </div>
-        `;
-      });
-      $('admin-rooms-list').innerHTML = roomsHTML || 'Nincsenek aktív szobák';
-    } catch(e) { console.error("Admin load error", e); }
-  };
-
-  window.wipeUser = async (uid) => {
-    if(confirm('Biztosan törlöd ezt a felhasználót?')) {
-      await deleteDoc(doc(db, lbCol, uid)); window.loadAdminData();
-    }
-  };
-  window.stopMatch = async (roomId) => {
-    if(confirm('Biztosan leállítod a meccset?')) {
-      await deleteDoc(doc(db, roomsCol, roomId)); window.loadAdminData();
-    }
-  };
-  window.setElo = async (uid, newElo) => {
-    if(!newElo || isNaN(newElo)) return;
-    await updateDoc(doc(db, lbCol, uid), { elo: parseInt(newElo) }); window.loadAdminData();
-  };
-
   // --- AUTH & RECONNECTION ---
   async function performAuth() {
     try {
-      if (isOwnFirebase) {
-        await signInAnonymously(auth);
-      } else {
+      if (isOwnFirebase) { await signInAnonymously(auth); } else {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
         else await signInAnonymously(auth);
       }
-    } catch(e) { 
-      console.warn("Auth hiba, bejelentkezés nélkül (lokális mentéssel) fog működni a vendég profil", e); 
-      // Ha hibára fut, nem blokkoljuk a Guest logint, a currentUser-t magunk generáljuk gombnyomáskor
-    }
+    } catch(e) { console.warn("Auth hiba", e); }
   }
 
   onAuthStateChanged(auth, async (user) => {
     if(user) {
       currentUser = user;
       await loadUserProfile();
+      
+      // Setup Presence
+      S.userData.lastSeen = Date.now();
+      await saveUserProfile();
+      S.presenceInterval = setInterval(() => { S.userData.lastSeen = Date.now(); saveUserProfile(); }, 60000);
+
       if(S.mode === 'menu') {
         goToMenu();
         if(S.userData.isGoogle) await checkForActiveGames();
@@ -860,11 +812,8 @@
           foundRoom = r.id;
         }
       });
-      if(foundRoom) {
-        S.roomId = foundRoom;
-        openOverlay('overlay-reconnect');
-      }
-    } catch(e) { console.log("Hiba az aktív meccsek keresésekor"); }
+      if(foundRoom) { S.roomId = foundRoom; openOverlay('overlay-reconnect'); }
+    } catch(e) {}
   }
 
   window.reconnectGame = async () => {
@@ -879,9 +828,8 @@
           S.activeRoundKey = `${r.id}-r${r.round}`; S.settings = r.settings; S.locations = r.locations; S.round = r.round;
           S.score = r.players[currentUser.uid]?.score || 0;
           showScr('screen-game');
-          if(r.state === 'playing') playRound(true); // resume
+          if(r.state === 'playing') playRound(true);
         } else {
-          // Waiting state
           S.roomId = r.id; 
           if(r.type==='ranked') openOverlay('overlay-queue');
           else { $('party-select').style.display='none'; $('party-lobby').style.display='grid'; openOverlay('overlay-party'); }
@@ -892,12 +840,9 @@
   };
 
   $('btn-login-guest').onclick = async () => {
-    // Generate safe local UID if Firebase Auth failed to provide one
-    if(!currentUser) {
-      currentUser = { uid: 'guest_' + Math.random().toString(36).substr(2, 9) };
-    }
+    if(!currentUser) currentUser = { uid: 'guest_' + Math.random().toString(36).substr(2, 9) };
     const name = $('input-guest-name').value.trim() || 'Felfedező_' + Math.floor(Math.random()*100);
-    S.userData = { name, elo: 0, avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`, isGoogle: false, gamesPlayed:0, rankedWins:0, rankedLosses:0, totalDist:0, totalGuesses:0, playTimeSeconds:0 };
+    S.userData = { name, elo: 0, avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`, isGoogle: false, gamesPlayed:0, rankedWins:0, rankedLosses:0, totalDist:0, totalGuesses:0, totalScore:0, playTimeSeconds:0, lastSeen: Date.now() };
     goToMenu();
   };
 
@@ -906,16 +851,14 @@
       toast("A bejelentkezés emulálva a Canvas környezetben.");
       const name = "ProJátékos" + Math.floor(Math.random()*100);
       if(!currentUser) currentUser = { uid: 'canvas_user' };
-      S.userData = { name, elo: 1200, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`, isGoogle: true, gamesPlayed:10, rankedWins:6, rankedLosses:4, totalDist:45000, totalGuesses:50, playTimeSeconds:3600 };
-      await saveUserProfile();
-      goToMenu();
-      return;
+      S.userData = { name, elo: 1200, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`, isGoogle: true, gamesPlayed:10, rankedWins:6, rankedLosses:4, totalDist:45000, totalGuesses:50, totalScore: 150000, playTimeSeconds:3600, lastSeen: Date.now() };
+      await saveUserProfile(); goToMenu(); return;
     }
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       if(S.userData.name === 'Vendég' || !S.userData.isGoogle) {
-         S.userData = { name: user.displayName, elo: 0, avatar: user.photoURL, isGoogle: true, gamesPlayed:0, rankedWins:0, rankedLosses:0, totalDist:0, totalGuesses:0, playTimeSeconds:0 };
+         S.userData = { name: user.displayName, elo: 0, avatar: user.photoURL, isGoogle: true, gamesPlayed:0, rankedWins:0, rankedLosses:0, totalDist:0, totalGuesses:0, totalScore:0, playTimeSeconds:0, lastSeen: Date.now() };
       }
       await saveUserProfile(); toast("Sikeres bejelentkezés!"); goToMenu();
     } catch (error) { toast("Hiba a bejelentkezés során.", true); }
@@ -923,8 +866,8 @@
 
   window.logout = async () => {
     try { await auth.signOut(); } catch(e){}
-    currentUser = null;
-    S.mode = 'menu'; showScr('screen-login');
+    if(S.presenceInterval) clearInterval(S.presenceInterval);
+    currentUser = null; S.mode = 'menu'; showScr('screen-login');
   };
 
   async function loadUserProfile() {
@@ -936,22 +879,24 @@
   }
 
   async function saveUserProfile() {
-    if(!currentUser || !S.userData.isGoogle) return; // Vendégeket nem mentünk db-be
-    try { await setDoc(doc(db, lbCol, currentUser.uid), S.userData, {merge: true}); } catch(e) { console.log(e); }
+    if(!currentUser || !S.userData.isGoogle) return;
+    try { await setDoc(doc(db, lbCol, currentUser.uid), S.userData, {merge: true}); } catch(e) {}
   }
 
   function goToMenu() {
     showScr('screen-menu');
     const r = getRankObj(S.userData.elo);
+    const lvl = getLevel(S.userData.totalScore);
     $('nav-name').innerText = S.userData.name;
     $('nav-avatar').src = S.userData.avatar;
     $('nav-elo').innerText = S.userData.elo + ' Elo';
+    $('nav-level').innerText = 'Szint ' + lvl;
     $('nav-rank-name').innerText = r.n;
-    $('nav-rank-name').className = `text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest ${r.c}`;
+    $('nav-rank-name').className = `text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest ${r.c}`;
     
     const rCard = $('card-ranked');
     if(!S.userData.isGoogle) {
-      rCard.style.opacity = '0.6'; rCard.querySelector('#ranked-badge').innerText = 'GOOGLE LOGIN KÖTELEZŐ';
+      rCard.style.opacity = '0.6'; rCard.querySelector('#ranked-badge').innerText = 'GOOGLE KÖTELEZŐ';
       rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-slate-600 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md';
     } else {
       rCard.style.opacity = '1'; rCard.querySelector('#ranked-badge').innerText = 'ÉLES';
@@ -968,15 +913,24 @@
       players.sort((a,b) => b.elo - a.elo);
       allProfilesCache = players;
       
+      const now = Date.now();
+      const onlineCount = players.filter(p => (now - (p.lastSeen||0)) < 120000).length;
+      // Also add ourselves to online count if guest
+      $('online-count').innerText = onlineCount + (!S.userData.isGoogle ? 1 : 0);
+
       const renderList = (limit) => players.slice(0,limit).map((p,i) => {
         const r = getRankObj(p.elo);
         let medal = i===0?'text-yellow-400 text-2xl':i===1?'text-slate-300 text-xl':i===2?'text-orange-400 text-lg':'text-slate-500';
+        const isOnline = (now - (p.lastSeen||0)) < 120000;
         return `
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-white/5 hover:bg-slate-700/60 transition cursor-pointer" onclick="showProfile('${p.uid}')">
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-white/5 hover:bg-slate-700/60 transition cursor-pointer group" onclick="showProfile('${p.uid}')">
             <div class="flex items-center gap-3">
               <span class="font-black w-6 text-center ${medal}">${i+1}.</span>
-              <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover">
-              <span class="font-black text-sm">${p.name}</span>
+              <div class="relative">
+                <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-blue-400 transition">
+                <div class="absolute bottom-0 right-0 status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
+              </div>
+              <span class="font-black text-sm text-slate-200 group-hover:text-white">${p.name}</span>
             </div>
             <div class="text-right">
               <div class="font-black text-blue-400 text-lg leading-none">${p.elo}</div>
@@ -1001,9 +955,22 @@
     if(!p) return;
     $('prof-avatar').src = p.avatar; $('prof-name').innerText = p.name; $('prof-elo').innerText = p.elo;
     
+    const isOnline = (Date.now() - (p.lastSeen||0)) < 120000 || uid === currentUser?.uid;
+    $('prof-status').className = `absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-slate-900 status-dot ${isOnline ? 'status-online' : 'status-offline'}`;
+
     const r = getRankObj(p.elo);
-    $('prof-rank-badge').innerText = r.n; $('prof-rank-badge').className = `absolute -bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-black px-3 py-1 rounded-full border-2 border-slate-900 shadow-lg uppercase tracking-widest ${r.c}`;
+    $('prof-rank-badge').innerText = r.n; $('prof-rank-badge').className = `text-xs font-black px-3 py-1 rounded-full border border-slate-700 uppercase tracking-widest text-white shadow-lg ${r.c.split(' ')[1]}`;
     
+    const lvl = getLevel(p.totalScore);
+    const xpStart = getXpForPrevLevel(lvl);
+    const xpNext = getXpForNextLevel(lvl);
+    const xpCurrent = (p.totalScore || 0);
+    const pct = Math.max(0, Math.min(100, ((xpCurrent - xpStart) / (xpNext - xpStart)) * 100));
+
+    $('prof-level-txt').innerText = `Szint ${lvl}`;
+    $('prof-xp').innerText = xpCurrent;
+    setTimeout(() => { $('prof-xp-bar').style.width = pct + '%'; }, 100);
+
     $('prof-games').innerText = p.gamesPlayed || 0;
     const w = p.rankedWins || 0; const l = p.rankedLosses || 0; const totalRanked = w+l;
     $('prof-wins').innerText = w; $('prof-losses').innerText = l;
@@ -1029,12 +996,8 @@
       $('party-select').style.display = 'grid'; $('party-lobby').style.display = 'none';
       openOverlay('overlay-party');
     } else if(mode === 'solo') { 
-      // Reset solo dropdown
       const selNode = document.querySelector('#solo-region-select .custom-select');
-      if(selNode) {
-        selNode.dataset.value = 'world';
-        selNode.querySelector('span').innerText = '🌍 Egész Világ';
-      }
+      if(selNode) { selNode.dataset.value = 'world'; selNode.querySelector('span').innerText = '🌍 Egész Világ'; }
       $('solo-rounds').value = 5; $('solo-lbl-rounds').innerText = 5;
       $('solo-time').value = 0; $('solo-lbl-time').innerText = 'Végtelen';
       openOverlay('overlay-solo'); 
@@ -1047,8 +1010,7 @@
   const TILE_SAT = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   const TILE_LABELS = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png';
   
-  let currentTileLayer = null;
-  let labelLayer = null;
+  let currentTileLayer = null; let labelLayer = null;
 
   function initMap() {
     if(guessMap) { guessMap.remove(); guessMarker = null; }
@@ -1077,11 +1039,8 @@
   function setMapTiles() {
     if(currentTileLayer) guessMap.removeLayer(currentTileLayer);
     if(labelLayer) guessMap.removeLayer(labelLayer);
-    
     currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 18 }).addTo(guessMap);
-    if(S.mapSatellite) {
-      labelLayer = L.tileLayer(TILE_LABELS, { maxZoom: 18, pane: 'markerPane' }).addTo(guessMap);
-    }
+    if(S.mapSatellite) labelLayer = L.tileLayer(TILE_LABELS, { maxZoom: 18, pane: 'markerPane' }).addTo(guessMap);
   }
   window.resetMapView = () => { if(guessMap) guessMap.setView([20,0], 2); };
 
@@ -1096,6 +1055,13 @@
     closeOverlay('overlay-solo'); showScr('screen-game'); S.playTimeStart = Date.now(); playRound();
   };
 
+  window.resetStreetView = () => {
+    if (S.locations && S.locations[S.round - 1]) {
+      const loc = S.locations[S.round - 1];
+      $('sv-iframe').src = `https://maps.google.com/maps?q=&layer=c&cbll=${loc.lat},${loc.lng}&output=svembed`;
+    }
+  };
+
   function playRound(isResume = false) {
     S.hasGuessed = false; S.timerSpeed = 1;
     $('hud-time').classList.remove('timer-alert');
@@ -1106,7 +1072,7 @@
 
     const loc = S.locations[S.round - 1];
     $('sv-loader').style.opacity = '1'; $('sv-iframe').style.opacity = '0';
-    $('sv-iframe').src = `https://maps.google.com/maps?q=&layer=c&cbll=${loc.lat},${loc.lng}&output=svembed`;
+    resetStreetView();
     
     $('sv-iframe').onload = () => {
       $('sv-loader').style.opacity = '0'; $('sv-iframe').style.opacity = '1'; 
@@ -1239,9 +1205,7 @@
       const updateData = { state: nextState };
       if(nextState === 'playing') {
         updateData.round = S.round + 1;
-        for(let uid in S.roomData.players) {
-          updateData[`players.${uid}.hasGuessed`] = false; updateData[`players.${uid}.guess`] = null;
-        }
+        for(let uid in S.roomData.players) { updateData[`players.${uid}.hasGuessed`] = false; updateData[`players.${uid}.guess`] = null; }
       }
       await updateDoc(doc(db, roomsCol, S.roomId), updateData);
     }
@@ -1255,21 +1219,64 @@
     S.userData.playTimeSeconds += pt;
     S.userData.gamesPlayed++;
     
-    if(S.mode === 'ranked' && players.length === 2) {
-       await updateEloScores(players);
-    } else if (S.mode === 'solo') {
+    // Store original Elo to show delta
+    const oldElo = S.userData.elo;
+    
+    // Check for abandonment logic in Ranked
+    let myEloDelta = 0;
+    if(S.mode === 'ranked') {
+      const abandonedBy = S.roomData?.abandonedBy;
+      if (abandonedBy) {
+        $('final-abandon-msg').innerText = abandonedBy === currentUser.uid ? "Feladtad a meccset!" : "Az ellenfél feladta!";
+        $('final-abandon-msg').classList.remove('hidden');
+        
+        if (abandonedBy === currentUser.uid) {
+           S.userData.elo = Math.max(0, S.userData.elo - 30); S.userData.rankedLosses++;
+           myEloDelta = -30;
+        } else {
+           S.userData.elo += 15; S.userData.rankedWins++;
+           myEloDelta = 15;
+           // Find me in players array and set me as winner visually
+           const myIdx = players.findIndex(p => p.uid === currentUser.uid);
+           if (myIdx > 0) { const temp = players[0]; players[0] = players[myIdx]; players[myIdx] = temp; }
+        }
+      } else if (players.length === 2) {
+         // Normal Elo Calculate on Client side to avoid server sync issues
+         const me = players.find(p => p.uid === currentUser.uid);
+         const opp = players.find(p => p.uid !== currentUser.uid);
+         if (me && opp) {
+           const K = 40; const d = me.score > opp.score ? 1 : (me.score === opp.score ? 0.5 : 0);
+           const expected = 1 / (1 + Math.pow(10, (opp.elo - me.elo) / 400));
+           myEloDelta = Math.round(K * (d - expected));
+           
+           S.userData.elo = Math.max(0, S.userData.elo + myEloDelta);
+           if(me.score > opp.score) S.userData.rankedWins++;
+           else if(me.score < opp.score) S.userData.rankedLosses++;
+         }
+      }
+      // Assign delta back to players object for rendering
+      players.forEach(p => {
+         if (p.uid === currentUser.uid) p.eloDelta = myEloDelta;
+         else p.eloDelta = -myEloDelta; // Approximate for visual if opp
+      });
+    }
+
+    if (S.mode === 'solo' || S.mode === 'ranked') {
        S.userData.totalGuesses += S.settings.rounds;
-       saveUserProfile();
+       S.userData.totalScore += (players.find(p => p.uid === currentUser.uid)?.score || 0);
+       await saveUserProfile();
     }
 
     const podHtml = (p, height, color, place) => {
       if(!p) return '<div class="w-1/3"></div>';
+      const eloSpan = p.eloDelta !== undefined ? `<div class="text-xs font-black ${p.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}">${p.eloDelta > 0 ? '+'+p.eloDelta : p.eloDelta} Elo</div>` : '';
       return `
         <div class="w-1/3 flex flex-col items-center justify-end h-full relative z-10 anim-pop" style="animation-delay: ${place*0.2}s">
           <div class="text-center mb-3">
             <img src="${p.avatar}" class="w-16 h-16 rounded-full mx-auto border-4 border-${color} shadow-[0_0_15px_currentColor]">
             <div class="text-sm font-black truncate w-24 mt-2 bg-black/60 px-2 py-0.5 rounded-full border border-white/10">${p.name}</div>
             <div class="text-2xl font-black text-${color} mt-1">${p.score}</div>
+            ${eloSpan}
           </div>
           <div class="${height} w-full bg-${color} rounded-t-2xl opacity-90 flex items-start justify-center pt-3 text-4xl font-black text-white/50 shadow-[inset_0_5px_15px_rgba(255,255,255,0.3)]">${place}</div>
         </div>
@@ -1278,16 +1285,21 @@
 
     $('final-podium').innerHTML = podHtml(players[1], 'h-32', 'slate-400', 2) + podHtml(players[0], 'h-48', 'yellow-400', 1) + podHtml(players[2], 'h-24', 'orange-600', 3);
 
-    $('final-list').innerHTML = players.map((p,i) => `
+    $('final-list').innerHTML = players.map((p,i) => {
+      const eloSpan = p.eloDelta !== undefined ? `<div class="text-xs font-black text-right ${p.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}">${p.eloDelta > 0 ? '+'+p.eloDelta : p.eloDelta} Elo</div>` : '';
+      return `
       <li class="flex justify-between items-center bg-slate-800/60 p-4 rounded-2xl border border-white/5 ${p.uid===currentUser?.uid ? 'border-blue-500 bg-blue-900/40':''}">
         <div class="flex items-center gap-4">
           <span class="font-black text-slate-500 w-6 text-xl text-center">${i+1}.</span>
           <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10">
           <span class="font-black text-lg">${p.name}</span>
         </div>
-        <div class="font-black text-yellow-400 text-xl font-mono">${p.score} pt</div>
-      </li>
-    `).join('');
+        <div>
+          <div class="font-black text-yellow-400 text-xl font-mono text-right">${p.score} pt</div>
+          ${eloSpan}
+        </div>
+      </li>`
+    }).join('');
 
     openOverlay('overlay-final');
   }
@@ -1429,6 +1441,7 @@
       const roundKey = `${data.id}-r${data.round}`;
       if(data.state === 'playing' && S.activeRoundKey !== roundKey) {
         closeOverlay('overlay-party'); closeOverlay('overlay-queue'); closeOverlay('overlay-round-result'); closeOverlay('overlay-reconnect');
+        $('final-abandon-msg').classList.add('hidden'); // reset abandon text
         showScr('screen-game');
         S.activeRoundKey = roundKey; S.settings = data.settings; S.locations = data.locations; S.round = data.round;
         S.score = data.players[currentUser.uid]?.score || 0; 
@@ -1470,45 +1483,13 @@
     });
   }
 
-  async function updateEloScores(players) {
-    if(!S.isHost) return; 
-    try {
-      const w = players[0], l = players[1]; 
-      const K = 40; 
-      const d = w.score > l.score ? 1 : (w.score === l.score ? 0.5 : 0);
-      
-      const p1Ref = doc(db, lbCol, w.uid); const p2Ref = doc(db, lbCol, l.uid);
-      const [p1S, p2S] = await Promise.all([getDoc(p1Ref), getDoc(p2Ref)]);
-      
-      let p1Data = p1S.exists() ? p1S.data() : {elo:0, rankedWins:0, rankedLosses:0};
-      let p2Data = p2S.exists() ? p2S.data() : {elo:0, rankedWins:0, rankedLosses:0};
-      
-      const elo1 = p1Data.elo || 0; const elo2 = p2Data.elo || 0;
-      
-      let newElo1 = Math.round(elo1 + K * (d - (1 / (1 + Math.pow(10, (elo2 - elo1) / 400)))));
-      let newElo2 = Math.round(elo2 + K * ((1-d) - (1 / (1 + Math.pow(10, (elo1 - elo2) / 400)))));
-      
-      if(newElo1 < 0) newElo1 = 0; if(newElo2 < 0) newElo2 = 0;
-
-      if(w.score > l.score) { p1Data.rankedWins = (p1Data.rankedWins||0)+1; p2Data.rankedLosses = (p2Data.rankedLosses||0)+1; }
-      else if(l.score > w.score) { p2Data.rankedWins = (p2Data.rankedWins||0)+1; p1Data.rankedLosses = (p1Data.rankedLosses||0)+1; }
-
-      await Promise.all([
-        updateDoc(p1Ref, {elo: newElo1, rankedWins: p1Data.rankedWins, rankedLosses: p1Data.rankedLosses, gamesPlayed: (p1Data.gamesPlayed||0)+1 }), 
-        updateDoc(p2Ref, {elo: newElo2, rankedWins: p2Data.rankedWins, rankedLosses: p2Data.rankedLosses, gamesPlayed: (p2Data.gamesPlayed||0)+1 })
-      ]);
-    } catch(e) { console.log(e); }
-  }
-
   window.abandonGame = async () => {
     if(S.mode === 'ranked' && S.roomId && currentUser) {
-      if(confirm("Biztos feladod? Ezzel Elo-t fogsz veszíteni!")) {
+      if(confirm("Biztos feladod? Ezzel -30 Elo-t fogsz veszíteni, az ellenfeled pedig nyer!")) {
          try {
-           await updateDoc(doc(db, roomsCol, S.roomId), { state: 'finished' });
-           S.userData.elo = Math.max(0, S.userData.elo - 20); S.userData.rankedLosses++;
-           await saveUserProfile();
+           // Elo update happens in FinalResults when it sees abandonedBy
+           await updateDoc(doc(db, roomsCol, S.roomId), { state: 'finished', abandonedBy: currentUser.uid });
          } catch(e){}
-         leaveGame();
       }
     } else {
       leaveGame();
@@ -1522,10 +1503,8 @@
     
     if(S.roomId && currentUser) {
       if(S.isHost) {
-        // Stop match instantly by completely deleting the room
         try { await deleteDoc(doc(db, roomsCol, S.roomId)); } catch(e){}
       } else {
-        // Disconnect gracefully by removing my user doc from the room
         try { await updateDoc(doc(db, roomsCol, S.roomId), { [`players.${currentUser.uid}`]: deleteField() }); } catch(e){}
       }
     }
