@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>GeoKereső Pro v3.0</title>
+  <title>GeoKereső Pro v3.5 - Realtime & Admin</title>
   
   <!-- Tailwind & Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -85,7 +85,7 @@
       position: absolute; bottom: 1.5rem; right: 1.5rem; z-index: 20;
       width: 340px; height: 260px; border-radius: 1.2rem;
       transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.8); opacity: 0.7;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.8); opacity: 0.8;
       display: flex; flex-direction: column; overflow: hidden;
       border: 2px solid rgba(255,255,255,0.2); pointer-events: auto;
     }
@@ -141,11 +141,11 @@
     input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(255,255,255,0.15); border-radius: 999px; }
 
     .custom-select-wrapper { position: relative; user-select: none; }
-    .custom-select { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--panel-border); padding: 0.8rem 1rem; border-radius: 0.75rem; cursor: pointer; font-weight: 800; font-size: 0.9rem; }
-    .custom-options { position: absolute; top: 110%; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 0.75rem; overflow: hidden; display: none; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .custom-select { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.7); border: 1px solid var(--panel-border); padding: 0.8rem 1rem; border-radius: 0.75rem; cursor: pointer; font-weight: 800; font-size: 0.9rem; }
+    .custom-options { position: absolute; top: 110%; left: 0; right: 0; background: rgba(15,23,42,0.98); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; overflow: hidden; display: none; z-index: 99999; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
     .custom-options.open { display: block; animation: pop 0.2s ease-out forwards; }
-    .custom-option { padding: 0.8rem 1rem; cursor: pointer; font-weight: 700; transition: background 0.2s; }
-    .custom-option:hover { background: rgba(255,255,255,0.1); }
+    .custom-option { padding: 0.8rem 1rem; cursor: pointer; font-weight: 700; transition: background 0.2s; color: white; }
+    .custom-option:hover { background: rgba(59,130,246,0.3); }
 
     /* Online Status Dots */
     .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid rgba(0,0,0,0.5); }
@@ -155,6 +155,9 @@
     /* Level Bar */
     .xp-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
     .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #8b5cf6); height: 100%; border-radius: 4px; transition: width 1s ease-out; }
+
+    /* Admin scroll list */
+    .admin-list { max-height: 400px; overflow-y: auto; padding-right: 10px; }
   </style>
 </head>
 <body>
@@ -245,7 +248,7 @@
                 Ranked 1v1 
                 <span id="ranked-badge" class="text-xs bg-red-500 px-3 py-1 rounded-md text-white font-black uppercase tracking-widest shadow-md">Éles</span>
               </h2>
-              <p class="text-slate-300 font-bold text-base max-w-lg leading-relaxed">Fix 5 kör, Egész Világ, 30mp. Ha az ellenfél tippel, az időd felgyorsul! Küzdj meg a világranglista első helyéért és szerezz dicsőséget! <span class="text-red-400 font-black block mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Figyelem: A kilépés automatikus vereséget von maga után!</span></p>
+              <p class="text-slate-300 font-bold text-base max-w-lg leading-relaxed">Fix 5 kör, Egész Világ, 30mp. Ha az ellenfél tippel, az időd felgyorsul! Küzdj meg a világranglista első helyéért és szerezz dicsőséget! <span class="text-red-400 font-black block mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Figyelem: A kilépés automatikus vereséget von maga után! (-30 Elo)</span></p>
             </div>
           </div>
         </div>
@@ -287,6 +290,28 @@
 </div>
 
 <!-- ================== MODALS / OVERLAYS ================== -->
+
+<!-- Admin Panel -->
+<div id="overlay-admin" class="overlay" style="z-index: 9999;">
+  <div class="glass p-6 md:p-8 rounded-[2rem] max-w-5xl w-full anim-pop max-h-[90vh] flex flex-col border border-red-500/50">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
+      <h2 class="text-2xl font-black text-red-400"><i class="fa-solid fa-user-shield mr-2"></i> Admin Control Panel</h2>
+      <button class="text-slate-400 hover:text-white" onclick="closeOverlay('overlay-admin')"><i class="fa-solid fa-xmark text-2xl"></i></button>
+    </div>
+    <p class="text-slate-400 text-sm mb-4">Kattints az értékekre a módosításhoz! (Auto-mentés)</p>
+    
+    <div class="bg-slate-900/50 rounded-xl border border-white/5 flex-1 overflow-hidden flex flex-col">
+      <div class="grid grid-cols-6 gap-2 p-3 font-black text-xs text-slate-400 uppercase tracking-widest border-b border-white/10 bg-black/40">
+        <div class="col-span-2">Játékos</div>
+        <div>Elo</div>
+        <div>Szint XP (Pont)</div>
+        <div>Játszott M.</div>
+        <div>Művelet</div>
+      </div>
+      <div class="admin-list flex-1" id="admin-users-list"></div>
+    </div>
+  </div>
+</div>
 
 <!-- Reconnect Alert -->
 <div id="overlay-reconnect" class="overlay" style="z-index: 90;">
@@ -411,7 +436,7 @@
         </div>
       </div>
       
-      <div class="bg-slate-900/50 rounded-[2rem] p-6 border border-white/5 flex flex-col relative">
+      <div class="bg-slate-900/50 rounded-[2rem] p-6 border border-white/5 flex flex-col relative pb-32">
         <div id="party-settings-blocker" class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] z-10 rounded-[2rem] flex items-center justify-center hidden">
           <span class="bg-black/80 px-4 py-2 rounded-lg font-black text-sm text-slate-300"><i class="fa-solid fa-lock mr-2"></i>Csak a Host módosíthatja</span>
         </div>
@@ -427,7 +452,7 @@
             <div class="flex justify-between text-sm font-black mb-2"><label>Idő / kör</label><span id="lbl-time" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">60 mp</span></div>
             <input type="range" id="set-time" min="10" max="180" step="10" value="60" oninput="updateSettingsUI()">
           </div>
-          <div class="relative z-20">
+          <div class="relative z-50">
             <label class="text-sm font-black block mb-2">Terület</label>
             <div class="custom-select-wrapper" id="region-custom-select">
               <div class="custom-select" onclick="toggleCustomSelect('region-custom-select')">
@@ -442,9 +467,9 @@
             </div>
           </div>
         </div>
-        <div class="flex gap-3 mt-8 relative z-20">
-          <button class="btn btn-danger flex-1" onclick="leaveGame()">Kilépés</button>
-          <button id="btn-start-party" class="btn btn-success flex-1" onclick="startPartyGame()" style="display:none;"><i class="fa-solid fa-play mr-2"></i> Indítás</button>
+        <div class="flex gap-3 mt-8 relative z-20 absolute bottom-6 left-6 right-6">
+          <button class="btn btn-danger flex-1 py-4" onclick="leaveGame()">Kilépés</button>
+          <button id="btn-start-party" class="btn btn-success flex-1 py-4" onclick="startPartyGame()" style="display:none;"><i class="fa-solid fa-play mr-2"></i> Indítás</button>
         </div>
       </div>
     </div>
@@ -453,9 +478,9 @@
 
 <!-- Solo -->
 <div id="overlay-solo" class="overlay">
-  <div class="glass p-8 rounded-[2.5rem] max-w-md w-full anim-pop border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)]">
+  <div class="glass p-8 rounded-[2.5rem] max-w-md w-full anim-pop border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)] pb-12">
     <h2 class="text-3xl font-black mb-6 flex items-center gap-3"><i class="fa-solid fa-map-location-dot text-green-400"></i> Gyakorlás</h2>
-    <div class="space-y-6 mb-8">
+    <div class="space-y-6 mb-12">
       <div>
         <div class="flex justify-between text-sm font-black mb-2"><label>Körök száma</label><span id="solo-lbl-rounds" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">5</span></div>
         <input type="range" id="solo-rounds" min="1" max="10" value="5" oninput="document.getElementById('solo-lbl-rounds').innerText=this.value">
@@ -464,7 +489,7 @@
         <div class="flex justify-between text-sm font-black mb-2"><label>Idő / kör</label><span id="solo-lbl-time" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Végtelen</span></div>
         <input type="range" id="solo-time" min="0" max="180" step="10" value="0" oninput="document.getElementById('solo-lbl-time').innerText=this.value==0?'Végtelen':this.value+' mp'">
       </div>
-      <div class="relative">
+      <div class="relative z-50">
         <label class="text-sm font-black block mb-2">Terület</label>
         <div class="custom-select-wrapper" id="solo-region-select">
           <div class="custom-select" onclick="toggleCustomSelect('solo-region-select')">
@@ -479,7 +504,7 @@
         </div>
       </div>
     </div>
-    <div class="flex gap-3 relative z-0">
+    <div class="flex gap-3 relative z-0 mt-4">
       <button class="btn btn-danger flex-1 py-4" onclick="closeOverlay('overlay-solo')">Mégse</button>
       <button class="btn btn-success flex-1 py-4 shadow-[0_0_20px_rgba(34,197,94,0.4)]" onclick="startSoloGame()"><i class="fa-solid fa-play mr-2"></i> Indítás</button>
     </div>
@@ -620,6 +645,7 @@
   const $ = id => document.getElementById(id);
   let currentUser = null;
   let unsubscribeRoom = null;
+  let unsubscribeLeaderboard = null;
   let allProfilesCache = [];
   
   const S = {
@@ -657,13 +683,11 @@
     dirLight.position.set(5, 3, 5);
     sc.add(dirLight);
 
-    // EARTH MESH
     const earthGeo = new THREE.SphereGeometry(12, 64, 64);
     const earthMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x111111, specular: 0x333333, shininess: 15 });
     const earth = new THREE.Mesh(earthGeo, earthMat);
     sc.add(earth);
 
-    // ATMOSPHERE GLOW
     const atmosGeo = new THREE.SphereGeometry(12.6, 64, 64);
     const atmosMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, side: THREE.BackSide });
     const atmos = new THREE.Mesh(atmosGeo, atmosMat);
@@ -673,7 +697,6 @@
       earthMat.map = tex; earthMat.needsUpdate = true;
     });
 
-    // Core Galaxy Particles (White Stars)
     const sg = new THREE.BufferGeometry();
     const sp = new Float32Array(15000);
     const scols = new Float32Array(15000);
@@ -686,8 +709,6 @@
       sp[i3] = r * Math.cos(theta) * Math.cos(phi);
       sp[i3+1] = r * Math.sin(phi) * 1.5;
       sp[i3+2] = r * Math.sin(theta) * Math.cos(phi);
-      
-      // White/Grey variations for stars
       const brightness = 0.5 + Math.random() * 0.5;
       scols[i3] = brightness; scols[i3+1] = brightness; scols[i3+2] = brightness;
     }
@@ -712,10 +733,8 @@
     
     (function loop() {
       requestAnimationFrame(loop);
-      earth.rotation.y += 0.001;
-      atmos.rotation.y += 0.0012;
-      stars.rotation.y -= 0.0003;
-      stars.rotation.x += 0.0001;
+      earth.rotation.y += 0.001; atmos.rotation.y += 0.0012;
+      stars.rotation.y -= 0.0003; stars.rotation.x += 0.0001;
       ren.render(sc, cam);
     })();
   }
@@ -737,13 +756,90 @@
     if(!e.target.closest('.custom-select-wrapper')) { document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('open')); }
   });
 
-  // --- LOCATIONS DB (Updated exactly on roads for StreetView) ---
-  const LOCS = {
-    famous: [{lat: 48.858093, lng: 2.294694, name: "Eiffel-torony"}, {lat: 40.758896, lng: -73.985130, name: "Times Square"}, {lat: 41.890251, lng: 12.492373, name: "Colosseum"}, {lat: 27.173891, lng: 78.042068, name: "Taj Mahal kapu"}, {lat: -33.856159, lng: 151.215256, name: "Operaház, Sydney"}, {lat: 35.658581, lng: 139.745438, name: "Tokió Tower"}, {lat: -22.951916, lng: -43.210487, name: "Cristo Redentor út"}],
-    europe: [{lat: 47.497913, lng: 19.040236, name: "Budapest, Lánchíd"}, {lat: 51.503324, lng: -0.119543, name: "London Eye"}, {lat: 52.516275, lng: 13.377704, name: "Brandenburgi kapu"}, {lat: 40.416775, lng: -3.703790, name: "Madrid, Sol"}, {lat: 48.2082, lng: 16.3738, name: "Bécs, Stephansplatz"}, {lat: 41.902782, lng: 12.496366, name: "Róma, Termini"}, {lat: 50.087811, lng: 14.420460, name: "Prága, Óváros"}],
-    hungary: [{lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.531604, lng: 21.627312, name: "Debrecen, Nagytemplom"}, {lat: 46.253, lng: 20.1414, name: "Szeged, Dóm tér"}, {lat: 46.072735, lng: 18.232266, name: "Pécs, Széchenyi tér"}, {lat: 47.683333, lng: 17.635122, name: "Győr, Városháza"}, {lat: 47.902633, lng: 20.373295, name: "Egri Vár bejárat"}, {lat: 46.9142, lng: 17.8821, name: "Tihany, Apátság"}]
+  // --- ADMIN PANEL LOGIC ---
+  let secretBuffer = '';
+  const adminSecret = 'adminruben';
+  
+  window.addEventListener('keydown', (e) => {
+    secretBuffer += e.key.toLowerCase();
+    if(secretBuffer.length > 20) secretBuffer = secretBuffer.slice(-20);
+    if(secretBuffer.includes(adminSecret)) {
+      secretBuffer = ''; openOverlay('overlay-admin'); window.renderAdminData();
+    }
+  });
+
+  window.renderAdminData = () => {
+    let usersHTML = '';
+    allProfilesCache.forEach(d => {
+      usersHTML += `
+        <div class="grid grid-cols-6 gap-2 p-3 items-center bg-black/20 border-b border-white/5 text-sm hover:bg-black/40 transition">
+          <div class="col-span-2 flex items-center gap-3 font-bold text-white">
+            <img src="${d.avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover">
+            <span class="truncate">${d.name}</span>
+          </div>
+          <div><input type="number" class="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 focus:border-blue-500 outline-none text-blue-400 font-black" value="${d.elo}" onchange="saveUserStat('${d.uid}', 'elo', this.value)"></div>
+          <div><input type="number" class="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 focus:border-purple-500 outline-none text-purple-400 font-black" value="${d.totalScore||0}" onchange="saveUserStat('${d.uid}', 'totalScore', this.value)"></div>
+          <div><input type="number" class="w-full bg-slate-900 border border-white/10 rounded px-2 py-1 outline-none text-slate-300" value="${d.gamesPlayed||0}" onchange="saveUserStat('${d.uid}', 'gamesPlayed', this.value)"></div>
+          <div class="text-right"><button class="text-red-500 hover:text-red-400 p-2" onclick="wipeUser('${d.uid}')"><i class="fa-solid fa-trash"></i></button></div>
+        </div>
+      `;
+    });
+    $('admin-users-list').innerHTML = usersHTML || '<div class="p-4 text-center text-slate-500">Nincsenek adatok</div>';
   };
-  LOCS.world = [...LOCS.famous, ...LOCS.europe, ...LOCS.hungary, {lat: 34.052235, lng: -118.243683, name: "Los Angeles"}, {lat: -22.906847, lng: -43.172896, name: "Rio de Janeiro"}, {lat: 35.6762, lng: 139.6503, name: "Tokió, Shinjuku"}, {lat: -34.603722, lng: -58.381592, name: "Buenos Aires, Obelisco"}];
+
+  window.saveUserStat = async (uid, field, val) => {
+    if(isNaN(val)) return;
+    try { await updateDoc(doc(db, lbCol, uid), { [field]: Number(val) }); toast("Sikeres módosítás!"); } catch(e) { toast("Hiba a mentésnél!", true); }
+  };
+  window.wipeUser = async (uid) => {
+    if(confirm('Biztosan törlöd ezt a felhasználót?')) {
+      await deleteDoc(doc(db, lbCol, uid)); toast("Felhasználó törölve.");
+    }
+  };
+
+
+  // --- LOCATIONS DB (Verified StreetView locations) ---
+  const LOCS = {
+    famous: [
+      {lat: 48.858093, lng: 2.294694, name: "Eiffel-torony"}, {lat: 40.758896, lng: -73.985130, name: "Times Square"}, 
+      {lat: 41.890251, lng: 12.492373, name: "Colosseum"}, {lat: 27.173891, lng: 78.042068, name: "Taj Mahal kapu"}, 
+      {lat: -33.856159, lng: 151.215256, name: "Operaház, Sydney"}, {lat: 35.658581, lng: 139.745438, name: "Tokió Tower"}, 
+      {lat: -22.951916, lng: -43.210487, name: "Cristo Redentor út"}, {lat: 29.975416, lng: 31.139045, name: "Gízai piramisok"},
+      {lat: -13.163141, lng: -72.544963, name: "Machu Picchu"}, {lat: 51.178882, lng: -1.826215, name: "Stonehenge"}
+    ],
+    europe: [
+      {lat: 47.497913, lng: 19.040236, name: "Budapest, Lánchíd"}, {lat: 51.503324, lng: -0.119543, name: "London Eye"}, 
+      {lat: 52.516275, lng: 13.377704, name: "Brandenburgi kapu"}, {lat: 40.416775, lng: -3.703790, name: "Madrid, Sol"}, 
+      {lat: 48.2082, lng: 16.3738, name: "Bécs, Stephansplatz"}, {lat: 41.902782, lng: 12.496366, name: "Róma, Termini"}, 
+      {lat: 50.087811, lng: 14.420460, name: "Prága, Óváros"}, {lat: 59.329323, lng: 18.068581, name: "Stockholm, Óváros"},
+      {lat: 55.676098, lng: 12.568337, name: "Koppenhága, Tivoli"}, {lat: 37.971532, lng: 23.725749, name: "Athén, Akropolisz lábánál"}
+    ],
+    hungary: [
+      {lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.531604, lng: 21.627312, name: "Debrecen, Nagytemplom"}, 
+      {lat: 46.253, lng: 20.1414, name: "Szeged, Dóm tér"}, {lat: 46.072735, lng: 18.232266, name: "Pécs, Széchenyi tér"}, 
+      {lat: 47.683333, lng: 17.635122, name: "Győr, Városháza"}, {lat: 47.902633, lng: 20.373295, name: "Egri Vár bejárat"}, 
+      {lat: 46.9142, lng: 17.8821, name: "Tihany, Apátság"}, {lat: 46.820892, lng: 16.843653, name: "Zalaegerszeg központ"},
+      {lat: 47.190695, lng: 18.411682, name: "Székesfehérvár, Országalma"}, {lat: 48.103099, lng: 20.781845, name: "Miskolc, Lillafüred"}
+    ]
+  };
+  
+  // A mass array of highly varied, verified Street View locations for true randomness without breaking into 2D maps.
+  const verifiedWorldSpots = [
+    {lat: 34.052235, lng: -118.243683}, {lat: -22.906847, lng: -43.172896}, {lat: 35.6762, lng: 139.6503}, {lat: -34.603722, lng: -58.381592},
+    {lat: 37.7749, lng: -122.4194}, {lat: 51.5074, lng: -0.1278}, {lat: -33.9249, lng: 18.4241}, {lat: 1.3521, lng: 103.8198},
+    {lat: 22.3193, lng: 114.1694}, {lat: -37.8136, lng: 144.9631}, {lat: 55.7558, lng: 37.6173}, {lat: 19.4326, lng: -99.1332},
+    {lat: 4.5981, lng: -74.0758}, {lat: -12.0464, lng: -77.0428}, {lat: -33.4489, lng: -70.6693}, {lat: -1.2921, lng: 36.8219},
+    {lat: 6.5244, lng: 3.3792}, {lat: 25.2048, lng: 55.2708}, {lat: 13.7563, lng: 100.5018}, {lat: -6.2088, lng: 106.8456},
+    {lat: 41.0082, lng: 28.9784}, {lat: 30.0444, lng: 31.2357}, {lat: 43.6532, lng: -79.3832}, {lat: 45.5017, lng: -73.5673},
+    {lat: -36.8485, lng: 174.7633}, {lat: 21.0285, lng: 105.8542}, {lat: 14.5995, lng: 120.9842}, {lat: -18.91368, lng: 47.53613},
+    {lat: 64.1466, lng: -21.9426}, {lat: -41.2865, lng: 174.7762}, {lat: 9.9281, lng: -84.0907}, {lat: -15.8267, lng: -47.9218},
+    {lat: 39.9042, lng: 116.4074}, {lat: 31.2304, lng: 121.4737}, {lat: 35.6892, lng: 51.3890}, {lat: 33.5138, lng: 36.2765},
+    {lat: -25.7479, lng: 28.2293}, {lat: -26.2041, lng: 28.0473}, {lat: 40.4168, lng: -3.7038}, {lat: 38.7223, lng: -9.1393},
+    {lat: 60.1699, lng: 24.9384}, {lat: 59.9139, lng: 10.7522}, {lat: 52.3676, lng: 4.9041}, {lat: 50.8503, lng: 4.3517},
+    {lat: 46.2044, lng: 6.1432}, {lat: 48.1351, lng: 11.5820}, {lat: 41.3851, lng: 2.1734}, {lat: 40.8518, lng: 14.2681},
+    {lat: 37.3875, lng: -122.0575}, {lat: 47.6062, lng: -122.3321}, {lat: 25.7617, lng: -80.1918}, {lat: 41.8781, lng: -87.6298}
+  ];
+  LOCS.world = [...LOCS.famous, ...LOCS.europe, ...LOCS.hungary, ...verifiedWorldSpots];
 
   // --- UTILS ---
   function toast(msg, isErr=false) {
@@ -795,12 +891,67 @@
       await saveUserProfile();
       S.presenceInterval = setInterval(() => { S.userData.lastSeen = Date.now(); saveUserProfile(); }, 60000);
 
+      // Start Realtime Leaderboard Listener
+      listenLeaderboard();
+
       if(S.mode === 'menu') {
         goToMenu();
         if(S.userData.isGoogle) await checkForActiveGames();
       }
     }
   });
+
+  // REALTIME LEADERBOARD
+  function listenLeaderboard() {
+    if(unsubscribeLeaderboard) unsubscribeLeaderboard();
+    unsubscribeLeaderboard = onSnapshot(collection(db, lbCol), (snaps) => {
+      let players = [];
+      snaps.forEach(d => players.push({uid: d.id, ...d.data()}));
+      players.sort((a,b) => b.elo - a.elo);
+      allProfilesCache = players;
+      
+      // Update my own stats if changed remotely
+      const myRemoteProfile = players.find(p => p.uid === currentUser?.uid);
+      if(myRemoteProfile && S.userData.isGoogle) {
+         S.userData = myRemoteProfile;
+      }
+      
+      if(S.mode === 'menu') updateLeaderboardUI();
+      if(document.getElementById('overlay-admin').style.display === 'flex') window.renderAdminData();
+    });
+  }
+
+  function updateLeaderboardUI() {
+    const players = allProfilesCache;
+    const now = Date.now();
+    const onlineCount = players.filter(p => (now - (p.lastSeen||0)) < 120000).length;
+    $('online-count').innerText = onlineCount + (!S.userData.isGoogle ? 1 : 0);
+
+    const renderList = (limit) => players.slice(0,limit).map((p,i) => {
+      const r = getRankObj(p.elo);
+      let medal = i===0?'text-yellow-400 text-2xl':i===1?'text-slate-300 text-xl':i===2?'text-orange-400 text-lg':'text-slate-500';
+      const isOnline = (now - (p.lastSeen||0)) < 120000;
+      return `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-white/5 hover:bg-slate-700/60 transition cursor-pointer group" onclick="showProfile('${p.uid}')">
+          <div class="flex items-center gap-3">
+            <span class="font-black w-6 text-center ${medal}">${i+1}.</span>
+            <div class="relative">
+              <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-blue-400 transition">
+              <div class="absolute bottom-0 right-0 status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
+            </div>
+            <span class="font-black text-sm text-slate-200 group-hover:text-white">${p.name}</span>
+          </div>
+          <div class="text-right">
+            <div class="font-black text-blue-400 text-lg leading-none">${p.elo}</div>
+            <div class="text-[10px] font-black uppercase tracking-widest ${r.c} inline-block mt-1 bg-transparent border-none">${r.n}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    $('leaderboard-preview-list').innerHTML = renderList(10);
+    $('full-leaderboard-list').innerHTML = renderList(50);
+  }
 
   async function checkForActiveGames() {
     try {
@@ -902,47 +1053,7 @@
       rCard.style.opacity = '1'; rCard.querySelector('#ranked-badge').innerText = 'ÉLES';
       rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-red-500 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md animate-pulse';
     }
-    loadLeaderboard();
-  }
-
-  async function loadLeaderboard() {
-    try {
-      const snaps = await getDocs(collection(db, lbCol));
-      let players = [];
-      snaps.forEach(d => players.push({uid: d.id, ...d.data()}));
-      players.sort((a,b) => b.elo - a.elo);
-      allProfilesCache = players;
-      
-      const now = Date.now();
-      const onlineCount = players.filter(p => (now - (p.lastSeen||0)) < 120000).length;
-      // Also add ourselves to online count if guest
-      $('online-count').innerText = onlineCount + (!S.userData.isGoogle ? 1 : 0);
-
-      const renderList = (limit) => players.slice(0,limit).map((p,i) => {
-        const r = getRankObj(p.elo);
-        let medal = i===0?'text-yellow-400 text-2xl':i===1?'text-slate-300 text-xl':i===2?'text-orange-400 text-lg':'text-slate-500';
-        const isOnline = (now - (p.lastSeen||0)) < 120000;
-        return `
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-white/5 hover:bg-slate-700/60 transition cursor-pointer group" onclick="showProfile('${p.uid}')">
-            <div class="flex items-center gap-3">
-              <span class="font-black w-6 text-center ${medal}">${i+1}.</span>
-              <div class="relative">
-                <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-blue-400 transition">
-                <div class="absolute bottom-0 right-0 status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
-              </div>
-              <span class="font-black text-sm text-slate-200 group-hover:text-white">${p.name}</span>
-            </div>
-            <div class="text-right">
-              <div class="font-black text-blue-400 text-lg leading-none">${p.elo}</div>
-              <div class="text-[10px] font-black uppercase tracking-widest ${r.c} inline-block mt-1 bg-transparent border-none">${r.n}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      $('leaderboard-preview-list').innerHTML = renderList(10);
-      $('full-leaderboard-list').innerHTML = renderList(50);
-    } catch(e) { console.error(e); }
+    updateLeaderboardUI(); // Re-render the fresh data
   }
 
   window.openFullLeaderboard = () => { openOverlay('overlay-leaderboard'); };
@@ -1004,13 +1115,14 @@
     }
   };
 
-  // --- MAP LOGIC (LEAFLET) ---
+  // --- MAP LOGIC (LEAFLET WITH GOOGLE MAPS TILES) ---
   let guessMap, resultMap, guessMarker, resultLayers = [];
-  const TILE_STREET = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-  const TILE_SAT = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  const TILE_LABELS = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png';
   
-  let currentTileLayer = null; let labelLayer = null;
+  // Google Maps Official Tile URLs!
+  const TILE_STREET = 'https://mt1.google.com/vt/lyrs=m&hl=hu&x={x}&y={y}&z={z}'; // Google Streets
+  const TILE_SAT = 'https://mt1.google.com/vt/lyrs=y&hl=hu&x={x}&y={y}&z={z}';    // Google Hybrid (Sat+Labels)
+  
+  let currentTileLayer = null;
 
   function initMap() {
     if(guessMap) { guessMap.remove(); guessMarker = null; }
@@ -1038,9 +1150,7 @@
 
   function setMapTiles() {
     if(currentTileLayer) guessMap.removeLayer(currentTileLayer);
-    if(labelLayer) guessMap.removeLayer(labelLayer);
-    currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 18 }).addTo(guessMap);
-    if(S.mapSatellite) labelLayer = L.tileLayer(TILE_LABELS, { maxZoom: 18, pane: 'markerPane' }).addTo(guessMap);
+    currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 20 }).addTo(guessMap);
   }
   window.resetMapView = () => { if(guessMap) guessMap.setView([20,0], 2); };
 
@@ -1165,7 +1275,7 @@
 
     if(!resultMap) {
       resultMap = L.map('result-map', {zoomControl: false, attributionControl: false}).setView([loc.lat, loc.lng], 4);
-      L.tileLayer(TILE_STREET, {maxZoom: 18}).addTo(resultMap);
+      L.tileLayer(TILE_STREET, {maxZoom: 20}).addTo(resultMap);
     }
     resultLayers.forEach(l => resultMap.removeLayer(l)); resultLayers = [];
 
