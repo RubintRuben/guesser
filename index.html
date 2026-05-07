@@ -467,10 +467,9 @@
   import { getAuth, signInAnonymously, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // ==========================================
-  // IDE ILLESZD BE A SAJÁT FIREBASE CONFIGODAT
-  // ==========================================
-  const firebaseConfig = {
+// --- FIREBASE KONFIGURÁCIÓ ---
+  // Fontos: a változó neve myFirebaseConfig legyen, mert a kód ezt keresi!
+  const myFirebaseConfig = {
     apiKey: "AIzaSyC7bGNWKw-DIhcxAuojnIr7eExss2K3Q1w",
     authDomain: "guessr-f6896.firebaseapp.com",
     projectId: "guessr-f6896",
@@ -479,7 +478,7 @@
     appId: "1:823580681228:web:9e5958436f4247df083a29"
   };
   
-  // Logic to handle Canvas Environment vs Own Hosting seamlessly
+  // Innentől a kód többi része változatlan marad...
   const isOwnFirebase = myFirebaseConfig.apiKey !== "";
   let configToUse = isOwnFirebase ? myFirebaseConfig : {};
   if (!isOwnFirebase) {
