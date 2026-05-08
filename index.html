@@ -21,7 +21,7 @@
       --bg: #050810;
       --panel: rgba(13, 20, 35, 0.85);
       --panel-border: rgba(255, 255, 255, 0.1);
-      --green: #84cc16; /* Kicsit világosabb, igazi geoguessr zöld */
+      --green: #84cc16; 
       --blue: #3b82f6;
       --yellow: #f59e0b;
       --red: #ef4444;
@@ -39,6 +39,7 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     
     .screen { display: none; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10; }
     .screen.active { display: flex; flex-direction: column; }
@@ -75,37 +76,37 @@
       border: none;
       pointer-events: auto;
       transition: opacity 0.5s;
-      transform: scale(1.12);
-      transform-origin: center;
+      /* Remove scale if using JS API to avoid distortion */
     }
     .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 2; pointer-events: none; transition: opacity 0.3s; }
-    
-    /* Vignette effect for authentic look */
     .vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px rgba(0,0,0,0.5); z-index: 2; }
 
     #sv-return-btn { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 0.5rem 1rem; color: white; font-weight: bold; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
     #sv-return-btn:hover { background: rgba(0,0,0,0.9); }
 
+    /* Global Compass */
+    #global-compass { position: absolute; top: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 15; display: none; }
+    .compass-container { pointer-events: auto; width: 300px; height: 32px; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3); }
+    .compass-strip { position: absolute; height: 100%; display: flex; align-items: center; font-weight: 900; font-size: 0.85rem; color: rgba(255,255,255,0.8); white-space: nowrap; transition: transform 0.1s linear; }
+    .compass-marker { display: inline-flex; justify-content: center; width: 60px; }
+    .compass-marker.major { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-size: 1rem; }
+    .compass-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.8); transform: translateX(-50%); box-shadow: 0 0 8px white; z-index: 5; }
+
     /* HUD */
-    #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 1.5rem; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; }
+    #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 1.5rem; display: flex; justify-content: flex-start; align-items: flex-start; pointer-events: none; }
     .hud-box { pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     
     /* Ranked Authentic HUD */
-    #ranked-hud { position: absolute; top: 0; left: 0; right: 0; z-index: 15; padding: 1rem 2rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    #ranked-hud { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 1rem 2rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; }
     .ranked-player-box { width: 300px; display: flex; align-items: center; gap: 1rem; pointer-events: auto; }
     .score-bar-container { flex: 1; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); height: 28px; border-radius: 6px; position: relative; overflow: hidden; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    .score-bar-fill { height: 100%; background: linear-gradient(180deg, #a3e635, #65a30d); width: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .score-bar-fill { height: 100%; background: linear-gradient(180deg, #3b82f6, #2563eb); width: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .score-bar-fill.dmg { background: linear-gradient(180deg, #ef4444, #dc2626); }
     .score-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-family: 'Arial', sans-serif; font-weight: 900; font-style: italic; font-size: 1.1rem; color: white; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black; }
     .player-avatar-wrapper { position: relative; }
-    .player-avatar { w-12; h-12; rounded-full; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); object-fit: cover; }
+    /* FIXED CSS FOR AVATAR */
+    .player-avatar { width: 3rem; height: 3rem; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); object-fit: cover; }
     .player-name { font-weight: 900; font-size: 0.8rem; text-shadow: 1px 1px 3px black; text-transform: uppercase; margin-top: 0.2rem; }
-
-    /* Compass UI */
-    .compass-container { pointer-events: auto; width: 300px; height: 32px; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3); }
-    .compass-strip { position: absolute; height: 100%; display: flex; align-items: center; font-weight: 900; font-size: 0.85rem; color: rgba(255,255,255,0.8); white-space: nowrap; transition: transform 0.1s linear; }
-    .compass-marker { display: inline-flex; justify-content: center; width: 60px; /* 15 degrees per marker */ }
-    .compass-marker.major { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-size: 1rem; }
-    .compass-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.8); transform: translateX(-50%); box-shadow: 0 0 8px white; z-index: 5; }
 
     .timer-alert { animation: pulse-red 0.5s infinite alternate; }
     @keyframes pulse-red { from { color: white; text-shadow: none; } to { color: #ef4444; text-shadow: 0 0 10px #ef4444; } }
@@ -172,7 +173,9 @@
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #fff; cursor: pointer; margin-top: -7px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
     input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(255,255,255,0.15); border-radius: 999px; }
 
-    .custom-select-wrapper { position: relative; user-select: none; }
+    /* Dropdowns & Blockers */
+    #party-settings-blocker { position: absolute; inset: 0; z-index: 100; border-radius: 2rem; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; }
+    .custom-select-wrapper { position: relative; user-select: none; z-index: 40; }
     .custom-select { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.7); border: 1px solid var(--panel-border); padding: 0.8rem 1rem; border-radius: 0.75rem; cursor: pointer; font-weight: 800; font-size: 0.9rem; }
     .custom-options { position: absolute; top: 110%; left: 0; right: 0; background: rgba(15,23,42,0.98); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; overflow: hidden; display: none; z-index: 99999; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
     .custom-options.open { display: block; animation: pop 0.2s ease-out forwards; }
@@ -190,6 +193,7 @@
 
     /* Admin scroll list */
     .admin-list { max-height: 250px; overflow-y: auto; padding-right: 10px; }
+    #admin-user-edit-container { overflow-y: auto; position: absolute; inset: 0; background: #0f172a; z-index: 20; padding-bottom: 2rem; }
   </style>
 </head>
 <body>
@@ -266,7 +270,7 @@
       <!-- GAME MODES (Left 8 columns) -->
       <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <!-- Ranked Card (Full Width in its container) -->
+        <!-- Ranked Card -->
         <div class="md:col-span-2 glass p-8 md:p-10 rounded-[2.5rem] relative overflow-hidden group cursor-pointer border border-white/5 hover:border-yellow-500/50 transition-all bg-gradient-to-br from-slate-900/80 to-slate-800/80 shadow-2xl" onclick="menuAction('ranked')" id="card-ranked">
           <div class="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 group-hover:rotate-12 transform">
             <i class="fa-solid fa-chess-knight text-[20rem]"></i>
@@ -277,10 +281,10 @@
             </div>
             <div>
               <h2 class="text-4xl font-black mb-3 flex items-center gap-4 text-white">
-                Ranked 1v1 
+                Ranked Párbaj 
                 <span id="ranked-badge" class="text-xs bg-red-500 px-3 py-1 rounded-md text-white font-black uppercase tracking-widest shadow-md">Éles</span>
               </h2>
-              <p class="text-slate-300 font-bold text-base max-w-lg leading-relaxed">Fix 5 kör, Egész Világ, 30mp. Ha az ellenfél tippel, az időd felgyorsul! Küzdj meg a világranglista első helyéért és szerezz dicsőséget! <span class="text-red-400 font-black block mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Figyelem: A kilépés automatikus vereséget von maga után! (-30 Elo)</span></p>
+              <p class="text-slate-300 font-bold text-base max-w-lg leading-relaxed">Kezdjetek 6000 Életerővel. Aki messzebb tippel, az sérül! Küzdj meg a világranglista első helyéért! <span class="text-red-400 font-black block mt-2"><i class="fa-solid fa-triangle-exclamation"></i> Figyelem: A kilépés automatikus vereséget von maga után! (-30 Elo)</span></p>
             </div>
           </div>
         </div>
@@ -304,7 +308,7 @@
         </div>
       </div>
 
-      <!-- LEADERBOARD SIDEBAR (Right 4 columns) -->
+      <!-- LEADERBOARD SIDEBAR -->
       <div class="lg:col-span-4 glass p-6 md:p-8 rounded-[2.5rem] flex flex-col max-h-[600px]">
         <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
           <h3 class="font-black text-white text-xl flex items-center">
@@ -331,24 +335,24 @@
       <button class="text-slate-400 hover:text-white" onclick="closeOverlay('overlay-admin')"><i class="fa-solid fa-xmark text-2xl"></i></button>
     </div>
     
-    <div class="grid md:grid-cols-2 gap-6 flex-1 overflow-hidden">
+    <div class="grid md:grid-cols-2 gap-6 flex-1 overflow-hidden relative">
       <!-- Users Column -->
-      <div class="bg-slate-900/50 rounded-xl border border-white/5 flex flex-col overflow-hidden relative">
+      <div class="bg-slate-900/50 rounded-xl border border-white/5 flex flex-col overflow-hidden relative h-full">
         <div class="p-3 bg-black/40 border-b border-white/10 text-xs font-black text-slate-400 uppercase tracking-widest">Játékosok Kezelése</div>
         <div class="admin-list flex-1" id="admin-users-list-container"></div>
 
-        <div id="admin-user-edit-container" class="hidden absolute inset-0 bg-slate-900 z-10 flex flex-col p-4">
+        <div id="admin-user-edit-container" class="hidden">
           <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
-            <h3 class="font-black text-blue-400" id="admin-edit-name">Felhasznalo szerkesztese</h3>
-            <button class="text-slate-400 hover:text-white" onclick="adminBackToList()"><i class="fa-solid fa-arrow-left"></i> Vissza</button>
+            <h3 class="font-black text-blue-400" id="admin-edit-name">Felhasználó szerkesztése</h3>
+            <button class="text-slate-400 hover:text-white bg-black/40 px-3 py-1 rounded" onclick="adminBackToList()"><i class="fa-solid fa-arrow-left"></i> Vissza</button>
           </div>
           <input type="hidden" id="admin-edit-uid">
-          <div class="space-y-4 flex-1 overflow-y-auto">
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Elo pontszam</label>
+          <div class="space-y-4 pr-2">
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Elo pontszám</label>
               <input type="number" id="admin-edit-elo" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black focus:border-blue-500 outline-none"></div>
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Osszes XP / pont</label>
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Összes XP / pont</label>
               <input type="number" id="admin-edit-score" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black focus:border-purple-500 outline-none"></div>
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Jatszott meccsek</label>
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Játszott meccsek</label>
               <input type="number" id="admin-edit-games" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
             <div class="grid grid-cols-2 gap-3">
               <div><label class="text-xs font-bold text-slate-400 uppercase">Ranked win</label>
@@ -359,13 +363,13 @@
             <div class="grid grid-cols-2 gap-3">
               <div><label class="text-xs font-bold text-slate-400 uppercase">Tippek</label>
                 <input type="number" id="admin-edit-guesses" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
-              <div><label class="text-xs font-bold text-slate-400 uppercase">Ossz tavolsag</label>
+              <div><label class="text-xs font-bold text-slate-400 uppercase">Össz távolság</label>
                 <input type="number" id="admin-edit-dist" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
             </div>
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Jatekido masodpercben</label>
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Játékidő másodpercben</label>
               <input type="number" id="admin-edit-playtime" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
           </div>
-          <button class="btn btn-success w-full mt-4" onclick="adminSaveUser()">Modositasok mentese</button>
+          <button class="btn btn-success w-full mt-6" onclick="adminSaveUser()">Módosítások mentése</button>
         </div>
       </div>
       
@@ -402,7 +406,7 @@
       <h2 class="text-3xl font-black flex items-center gap-3"><i class="fa-solid fa-earth-americas text-blue-400"></i> Világranglista</h2>
       <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-10 h-10 flex items-center justify-center transition" onclick="closeOverlay('overlay-leaderboard')"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-3" id="full-leaderboard-list"></div>
+    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-3 custom-scrollbar" id="full-leaderboard-list"></div>
   </div>
 </div>
 
@@ -469,7 +473,7 @@
 
 <!-- Party -->
 <div id="overlay-party" class="overlay">
-  <div class="glass p-6 md:p-8 rounded-[2.5rem] max-w-4xl w-full anim-pop max-h-[95vh] overflow-y-auto">
+  <div class="glass p-6 md:p-8 rounded-[2.5rem] max-w-4xl w-full anim-pop max-h-[95vh] overflow-y-auto custom-scrollbar">
     <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
       <h2 class="text-2xl md:text-3xl font-black flex items-center gap-3"><i class="fa-solid fa-users-rays text-purple-400"></i> Party Szoba</h2>
       <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-10 h-10 flex items-center justify-center transition" onclick="closeOverlay('overlay-party')"><i class="fa-solid fa-xmark"></i></button>
@@ -493,7 +497,7 @@
     </div>
 
     <!-- Lobby -->
-    <div id="party-lobby" style="display:none;" class="grid md:grid-cols-2 gap-8">
+    <div id="party-lobby" style="display:none;" class="grid md:grid-cols-2 gap-8 relative">
       <div class="flex flex-col gap-4">
         <div class="bg-purple-950/30 rounded-[2rem] p-6 text-center border border-purple-500/30 cursor-pointer hover:bg-purple-900/40 transition group relative overflow-hidden" onclick="copyCode()">
           <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition duration-1000"></div>
@@ -506,14 +510,14 @@
         </div>
       </div>
       
-      <div class="bg-slate-900/50 rounded-[2rem] p-6 border border-white/5 flex flex-col relative pb-32">
-        <div id="party-settings-blocker" class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] z-10 rounded-[2rem] flex items-center justify-center hidden">
-          <span class="bg-black/80 px-4 py-2 rounded-lg font-black text-sm text-slate-300"><i class="fa-solid fa-lock mr-2"></i>Csak a Host módosíthatja</span>
+      <div class="bg-slate-900/50 rounded-[2rem] p-6 border border-white/5 flex flex-col relative pb-32 overflow-hidden">
+        <div id="party-settings-blocker">
+          <span class="bg-black/90 px-5 py-3 rounded-xl font-black text-sm text-slate-300 border border-white/10 shadow-2xl flex items-center"><i class="fa-solid fa-lock text-red-400 mr-3 text-lg"></i>Csak a Host módosíthatja</span>
         </div>
-        <h3 class="font-black text-xs text-slate-400 uppercase tracking-widest mb-6 flex justify-between items-center">
+        <h3 class="font-black text-xs text-slate-400 uppercase tracking-widest mb-6 flex justify-between items-center relative z-20">
           Beállítások <span id="host-badge" class="text-[10px] bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">HOST</span>
         </h3>
-        <div class="space-y-6 flex-1">
+        <div class="space-y-6 flex-1 relative z-20">
           <div>
             <div class="flex justify-between text-sm font-black mb-2"><label>Körök száma</label><span id="lbl-rounds" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">5</span></div>
             <input type="range" id="set-rounds" min="1" max="10" value="5" oninput="updateSettingsUI()">
@@ -522,7 +526,7 @@
             <div class="flex justify-between text-sm font-black mb-2"><label>Idő / kör</label><span id="lbl-time" class="text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">60 mp</span></div>
             <input type="range" id="set-time" min="10" max="180" step="10" value="60" oninput="updateSettingsUI()">
           </div>
-          <div class="relative z-50">
+          <div class="relative">
             <label class="text-sm font-black block mb-2">Terület</label>
             <div class="custom-select-wrapper" id="region-custom-select">
               <div class="custom-select" onclick="toggleCustomSelect('region-custom-select')">
@@ -537,7 +541,7 @@
             </div>
           </div>
         </div>
-        <div class="flex gap-3 mt-8 relative z-20 absolute bottom-6 left-6 right-6">
+        <div class="flex gap-3 mt-8 relative z-50 absolute bottom-6 left-6 right-6">
           <button class="btn btn-danger flex-1 py-4" onclick="leaveGame()">Kilépés</button>
           <button id="btn-start-party" class="btn btn-success flex-1 py-4" onclick="startPartyGame()" style="display:none;"><i class="fa-solid fa-play mr-2"></i> Indítás</button>
         </div>
@@ -590,8 +594,17 @@
       <div class="w-16 h-16 border-4 border-white/10 border-t-green-400 rounded-full animate-spin"></div>
       <p class="mt-6 font-black tracking-[0.2em] text-slate-400 text-xs uppercase">Helyszín betöltése...</p>
     </div>
-    <iframe id="sv-iframe" src="" allowfullscreen></iframe>
+    <!-- Cserélve div-re a Maps JS API miatt -->
+    <div id="sv-iframe"></div>
     <div class="vignette"></div>
+  </div>
+
+  <!-- Global Compass UI -->
+  <div id="global-compass">
+    <div class="compass-container">
+      <div class="compass-strip" id="compass-strip"></div>
+      <div class="compass-center-line"></div>
+    </div>
   </div>
 
   <!-- AUTHENTIC RANKED HUD (Shows only in Ranked) -->
@@ -599,46 +612,41 @@
     <div class="ranked-player-box" id="rh-player-me">
       <div class="player-avatar-wrapper"><img src="" class="player-avatar" id="rh-avatar-me"></div>
       <div class="flex-1">
-        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-me" style="width: 100%;"></div><div class="score-text" id="rh-score-me">0</div></div>
+        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-me" style="width: 100%;"></div><div class="score-text" id="rh-score-me">6000 HP</div></div>
         <div class="player-name text-left" id="rh-name-me">Játékos 1</div>
       </div>
     </div>
     
-    <div class="compass-container">
-      <div class="compass-strip" id="compass-strip">
-        <!-- Generált markerek jönnek ide JS-ből -->
-      </div>
-      <div class="compass-center-line"></div>
-    </div>
+    <!-- Üres div a helykitöltéshez, az iránytű mostmár a global-compass-ban van -->
+    <div class="w-[300px]"></div>
 
     <div class="ranked-player-box reverse" id="rh-player-opp">
       <div class="flex-1">
-        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-opp" style="width: 100%;"></div><div class="score-text" id="rh-score-opp">0</div></div>
+        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-opp" style="width: 100%;"></div><div class="score-text" id="rh-score-opp">6000 HP</div></div>
         <div class="player-name text-right" id="rh-name-opp">Várakozás...</div>
       </div>
       <div class="player-avatar-wrapper"><img src="" class="player-avatar" id="rh-avatar-opp"></div>
     </div>
   </div>
 
-  <!-- STANDARD HUD (Solo & Party) -->
+  <!-- STANDARD HUD (Solo & Party & Ranked Round Info) -->
   <div id="hud">
     <div class="hud-box">
       <div class="text-center px-3 border-r border-white/10">
         <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Kör</div>
-        <div class="font-black text-xl leading-none"><span id="hud-round">1</span><span class="text-slate-500 text-sm">/5</span></div>
+        <div class="font-black text-xl leading-none"><span id="hud-round">1</span><span class="text-slate-500 text-sm" id="hud-max-round">/5</span></div>
       </div>
       <div class="text-center px-3 border-r border-white/10 min-w-[70px]">
         <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Idő</div>
         <div id="hud-time" class="font-black text-2xl leading-none text-white font-mono">--</div>
       </div>
-      <div class="text-center px-3 min-w-[80px]">
+      <div class="text-center px-3 min-w-[80px]" id="hud-score-container">
         <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Pont</div>
         <div id="hud-score" class="font-black text-xl leading-none text-yellow-400 font-mono">0</div>
       </div>
     </div>
   </div>
 
-  <!-- Biztonságos helyre mozgatott feladás gomb -->
   <button class="absolute bottom-6 left-6 z-20 text-slate-300 bg-red-500/20 border border-red-500/30 px-4 py-2 rounded-full font-bold text-sm hover:text-white hover:bg-red-500/40 transition shadow-lg cursor-pointer flex items-center gap-2" onclick="abandonGame()">
     <i class="fa-solid fa-flag text-red-400"></i> Feladás
   </button>
@@ -659,7 +667,7 @@
 
 <!-- ================== ROUND RESULTS OVERLAY ================== -->
 <div id="overlay-round-result" class="overlay" style="z-index: 60;">
-  <div class="glass w-full max-w-5xl rounded-[2.5rem] p-6 md:p-8 flex flex-col max-h-[90vh] anim-pop">
+  <div class="glass w-full max-w-6xl rounded-[2.5rem] p-6 md:p-8 flex flex-col max-h-[90vh] anim-pop">
     <div class="flex justify-between items-start mb-6">
       <div>
         <h2 class="text-3xl font-black mb-2">Kör eredménye</h2>
@@ -668,14 +676,14 @@
         </div>
       </div>
       <div class="text-right bg-slate-900/50 p-4 rounded-2xl border border-white/5 shadow-inner">
-        <div class="text-xs text-slate-400 font-black uppercase tracking-widest mb-1">Kör pontszám</div>
+        <div class="text-xs text-slate-400 font-black uppercase tracking-widest mb-1" id="res-score-title">Kör pontszám</div>
         <div class="text-4xl font-black text-green-400 font-mono" id="res-points">+0</div>
         <div class="text-sm text-slate-400 font-bold mt-1" id="res-dist">0 km távolság</div>
       </div>
     </div>
     
-    <div class="flex-1 min-h-[250px] relative rounded-2xl border border-white/10 overflow-hidden mb-6 shadow-inner">
-      <div id="result-map" class="w-full h-full"></div>
+    <div class="flex-1 min-h-[350px] relative rounded-2xl border border-white/10 overflow-hidden mb-6 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]">
+      <div id="result-map" class="w-full h-full bg-slate-800"></div>
     </div>
 
     <div class="bg-slate-900/50 rounded-2xl p-4 max-h-[180px] overflow-y-auto mb-6 border border-white/5 shadow-inner custom-scrollbar">
@@ -695,7 +703,7 @@
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-500/10 rounded-full blur-[100px] pointer-events-none"></div>
     
     <div class="text-6xl mb-4 relative z-10 animate-[bounce-small_2s_ease-in-out_infinite]">🏆</div>
-    <h1 class="text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 relative z-10 drop-shadow-lg">Végeredmény</h1>
+    <h1 class="text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 relative z-10 drop-shadow-lg" id="final-title">Végeredmény</h1>
     <p id="final-abandon-msg" class="text-red-400 font-black text-lg mb-8 relative z-10 uppercase tracking-widest hidden"></p>
     
     <!-- Podium -->
@@ -711,12 +719,10 @@
 
 <!-- ================== SCRIPTS ================== -->
 <script type="module">
-  // --- FIREBASE IMPORTS ---
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, signInAnonymously, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // --- FIREBASE KONFIGURÁCIÓ ---
   const myFirebaseConfig = {
     apiKey: "AIzaSyC7bGNWKw-DIhcxAuojnIr7eExss2K3Q1w",
     authDomain: "guessr-f6896.firebaseapp.com",
@@ -725,8 +731,7 @@
     messagingSenderId: "823580681228",
     appId: "1:823580681228:web:9e5958436f4247df083a29"
   };
-  const GOOGLE_MAPS_EMBED_KEY = myFirebaseConfig.apiKey;
-  const USE_GOOGLE_MAPS_EMBED_API = false;
+  const GOOGLE_MAPS_KEY = myFirebaseConfig.apiKey;
   
   const isOwnFirebase = myFirebaseConfig.apiKey !== "";
   let configToUse = isOwnFirebase ? myFirebaseConfig : {};
@@ -744,13 +749,14 @@
   const roomsCol = basePath + 'rooms';
   const lbCol = basePath + 'leaderboard';
 
-  // --- GLOBALS & STATE ---
   const $ = id => document.getElementById(id);
   let currentUser = null;
   let unsubscribeRoom = null;
   let unsubscribeLeaderboard = null;
   let allProfilesCache = [];
   
+  const RANKED_MAX_HP = 6000;
+
   const S = {
     mode: 'menu', roomId: null, isHost: false, roomData: null,
     locations: [], round: 1, score: 0,
@@ -769,82 +775,28 @@
   function getXpForNextLevel(lvl) { return Math.pow(lvl, 2) * 1000; }
   function getXpForPrevLevel(lvl) { return Math.pow(lvl-1, 2) * 1000; }
 
-  // --- 3D GALAXY BACKGROUND WITH EARTH ---
+  // --- 3D BACKGROUND ---
   function init3DGlobe() {
-    const c = $('bg-canvas');
-    const sc = new THREE.Scene();
-    sc.fog = new THREE.FogExp2(0x050810, 0.001);
-
-    const cam = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 2000);
-    cam.position.z = 35;
-    const ren = new THREE.WebGLRenderer({canvas: c, antialias: true, alpha: true});
-    ren.setSize(window.innerWidth, window.innerHeight);
-    ren.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    
-    sc.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    dirLight.position.set(5, 3, 5);
-    sc.add(dirLight);
-
-    const earthGeo = new THREE.SphereGeometry(12, 64, 64);
-    const earthMat = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x111111, specular: 0x333333, shininess: 15 });
-    const earth = new THREE.Mesh(earthGeo, earthMat);
-    sc.add(earth);
-
-    const atmosGeo = new THREE.SphereGeometry(12.6, 64, 64);
-    const atmosMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, side: THREE.BackSide });
-    const atmos = new THREE.Mesh(atmosGeo, atmosMat);
-    sc.add(atmos);
-
-    new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg', (tex) => {
-      earthMat.map = tex; earthMat.needsUpdate = true;
-    });
-
-    const sg = new THREE.BufferGeometry();
-    const sp = new Float32Array(15000);
-    const scols = new Float32Array(15000);
-    
-    for(let i=0; i<5000; i++) {
-      const i3 = i*3;
-      const r = 20 + Math.random() * 120;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = (Math.random() - 0.5) * 2;
-      sp[i3] = r * Math.cos(theta) * Math.cos(phi);
-      sp[i3+1] = r * Math.sin(phi) * 1.5;
-      sp[i3+2] = r * Math.sin(theta) * Math.cos(phi);
-      const brightness = 0.5 + Math.random() * 0.5;
-      scols[i3] = brightness; scols[i3+1] = brightness; scols[i3+2] = brightness;
-    }
-    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-    sg.setAttribute('color', new THREE.BufferAttribute(scols, 3));
-    
-    const canvas = document.createElement('canvas'); canvas.width = 16; canvas.height = 16;
-    const context = canvas.getContext('2d');
-    const gradient = context.createRadialGradient(8, 8, 0, 8, 8, 8);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)'); gradient.addColorStop(1, 'rgba(255,255,255,0)');
-    context.fillStyle = gradient; context.fillRect(0, 0, 16, 16);
-    const starTexture = new THREE.CanvasTexture(canvas);
-
-    const smat = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, map: starTexture, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false });
-    const stars = new THREE.Points(sg, smat);
-    sc.add(stars);
-    
-    window.addEventListener('resize', () => {
-      cam.aspect = window.innerWidth/window.innerHeight; cam.updateProjectionMatrix();
-      ren.setSize(window.innerWidth, window.innerHeight);
-    });
-    
-    (function loop() {
-      requestAnimationFrame(loop);
-      earth.rotation.y += 0.001; atmos.rotation.y += 0.0012;
-      stars.rotation.y -= 0.0003; stars.rotation.x += 0.0001;
-      ren.render(sc, cam);
-    })();
+    const c = $('bg-canvas'); const sc = new THREE.Scene(); sc.fog = new THREE.FogExp2(0x050810, 0.001);
+    const cam = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 2000); cam.position.z = 35;
+    const ren = new THREE.WebGLRenderer({canvas: c, antialias: true, alpha: true}); ren.setSize(window.innerWidth, window.innerHeight); ren.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    sc.add(new THREE.AmbientLight(0xffffff, 0.4)); const dirLight = new THREE.DirectionalLight(0xffffff, 1.5); dirLight.position.set(5, 3, 5); sc.add(dirLight);
+    const earth = new THREE.Mesh(new THREE.SphereGeometry(12, 64, 64), new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x111111, specular: 0x333333, shininess: 15 })); sc.add(earth);
+    const atmos = new THREE.Mesh(new THREE.SphereGeometry(12.6, 64, 64), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, side: THREE.BackSide })); sc.add(atmos);
+    new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg', (tex) => { earth.material.map = tex; earth.material.needsUpdate = true; });
+    const sg = new THREE.BufferGeometry(); const sp = new Float32Array(15000); const scols = new Float32Array(15000);
+    for(let i=0; i<5000; i++) { const i3=i*3, r=20+Math.random()*120, theta=Math.random()*Math.PI*2, phi=(Math.random()-0.5)*2; sp[i3]=r*Math.cos(theta)*Math.cos(phi); sp[i3+1]=r*Math.sin(phi)*1.5; sp[i3+2]=r*Math.sin(theta)*Math.cos(phi); const b=0.5+Math.random()*0.5; scols[i3]=b; scols[i3+1]=b; scols[i3+2]=b; }
+    sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); sg.setAttribute('color', new THREE.BufferAttribute(scols, 3));
+    const canvas = document.createElement('canvas'); canvas.width = 16; canvas.height = 16; const context = canvas.getContext('2d'); const gradient = context.createRadialGradient(8, 8, 0, 8, 8, 8); gradient.addColorStop(0, 'rgba(255,255,255,1)'); gradient.addColorStop(1, 'rgba(255,255,255,0)'); context.fillStyle = gradient; context.fillRect(0, 0, 16, 16);
+    const stars = new THREE.Points(sg, new THREE.PointsMaterial({ size: 0.8, vertexColors: true, map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false })); sc.add(stars);
+    window.addEventListener('resize', () => { cam.aspect = window.innerWidth/window.innerHeight; cam.updateProjectionMatrix(); ren.setSize(window.innerWidth, window.innerHeight); });
+    (function loop() { requestAnimationFrame(loop); earth.rotation.y += 0.001; atmos.rotation.y += 0.0012; stars.rotation.y -= 0.0003; stars.rotation.x += 0.0001; ren.render(sc, cam); })();
   }
   init3DGlobe();
 
-  // --- CUSTOM DROPDOWN LOGIC ---
+  // --- DROPDOWN & SETTINGS LOGIC ---
   window.toggleCustomSelect = (id) => {
+    if(S.mode === 'party' && !S.isHost) return; // Nem nyitható le, ha vendég
     document.querySelectorAll('.custom-options').forEach(el => { if(el.parentElement.id !== id) el.classList.remove('open'); });
     document.querySelector(`#${id} .custom-options`).classList.toggle('open');
   };
@@ -854,21 +806,13 @@
     document.querySelector(`#${wrapId} .custom-options`).classList.remove('open');
     if(wrapId === 'region-custom-select') updateSettingsUI();
   };
-  
-  document.addEventListener('click', (e) => {
-    if(!e.target.closest('.custom-select-wrapper')) { document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('open')); }
-  });
+  document.addEventListener('click', (e) => { if(!e.target.closest('.custom-select-wrapper')) { document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('open')); } });
 
   // --- ADMIN PANEL LOGIC ---
-  let secretBuffer = '';
-  const adminSecret = 'admin'; // Egyszerűsítve az eléréshez
-  
+  let secretBuffer = ''; const adminSecret = 'admin';
   window.addEventListener('keydown', (e) => {
-    secretBuffer += e.key.toLowerCase();
-    if(secretBuffer.length > 10) secretBuffer = secretBuffer.slice(-10);
-    if(secretBuffer.includes(adminSecret)) {
-      secretBuffer = ''; openOverlay('overlay-admin'); window.renderAdminData(); window.fetchAdminRooms();
-    }
+    secretBuffer += e.key.toLowerCase(); if(secretBuffer.length > 10) secretBuffer = secretBuffer.slice(-10);
+    if(secretBuffer.includes(adminSecret)) { secretBuffer = ''; openOverlay('overlay-admin'); window.renderAdminData(); window.fetchAdminRooms(); }
   });
 
   window.renderAdminData = () => {
@@ -876,106 +820,61 @@
     allProfilesCache.forEach(d => {
       usersHTML += `
         <div class="flex justify-between items-center p-3 bg-black/20 border-b border-white/5 text-sm hover:bg-black/40 transition cursor-pointer" onclick="adminEditUser('${d.uid}')">
-          <div class="flex items-center gap-3 font-bold text-white">
-            <img src="${d.avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover">
-            <span>${d.name} <span class="text-xs text-blue-400 ml-2">(${d.elo || 0} Elo)</span></span>
-          </div>
-          <div class="text-right">
-            <button class="text-slate-400 hover:text-white px-2 py-1 bg-black/40 rounded"><i class="fa-solid fa-pen"></i> Szerkesztes</button>
-          </div>
-        </div>
-      `;
+          <div class="flex items-center gap-3 font-bold text-white"><img src="${d.avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover"><span>${d.name} <span class="text-xs text-blue-400 ml-2">(${d.elo || 0} Elo)</span></span></div>
+          <button class="text-slate-400 hover:text-white px-2 py-1 bg-black/40 rounded"><i class="fa-solid fa-pen"></i></button>
+        </div>`;
     });
     $('admin-users-list-container').innerHTML = usersHTML || '<div class="p-4 text-center text-slate-500">Nincsenek adatok</div>';
   };
 
   window.adminEditUser = (uid) => {
-    const p = allProfilesCache.find(x => x.uid === uid);
-    if(!p) return;
-    $('admin-edit-uid').value = uid;
-    $('admin-edit-name').innerText = (p.name || 'Felhasznalo') + " szerkesztese";
-    $('admin-edit-elo').value = p.elo || 0;
-    $('admin-edit-score').value = p.totalScore || 0;
-    $('admin-edit-games').value = p.gamesPlayed || 0;
-    $('admin-edit-wins').value = p.rankedWins || 0;
-    $('admin-edit-losses').value = p.rankedLosses || 0;
-    $('admin-edit-guesses').value = p.totalGuesses || 0;
-    $('admin-edit-dist').value = p.totalDist || 0;
-    $('admin-edit-playtime').value = p.playTimeSeconds || 0;
-    $('admin-users-list-container').classList.add('hidden');
-    $('admin-user-edit-container').classList.remove('hidden');
+    const p = allProfilesCache.find(x => x.uid === uid); if(!p) return;
+    $('admin-edit-uid').value = uid; $('admin-edit-name').innerText = (p.name || 'Felhasználó');
+    $('admin-edit-elo').value = p.elo || 0; $('admin-edit-score').value = p.totalScore || 0;
+    $('admin-edit-games').value = p.gamesPlayed || 0; $('admin-edit-wins').value = p.rankedWins || 0;
+    $('admin-edit-losses').value = p.rankedLosses || 0; $('admin-edit-guesses').value = p.totalGuesses || 0;
+    $('admin-edit-dist').value = p.totalDist || 0; $('admin-edit-playtime').value = p.playTimeSeconds || 0;
+    $('admin-users-list-container').parentElement.querySelector('.p-3').classList.add('hidden');
+    $('admin-users-list-container').classList.add('hidden'); $('admin-user-edit-container').classList.remove('hidden');
   };
 
   window.adminBackToList = () => {
     $('admin-user-edit-container').classList.add('hidden');
     $('admin-users-list-container').classList.remove('hidden');
+    $('admin-users-list-container').parentElement.querySelector('.p-3').classList.remove('hidden');
   };
 
   window.adminSaveUser = async () => {
-    const uid = $('admin-edit-uid').value;
-    const elo = Number($('admin-edit-elo').value);
-    const score = Number($('admin-edit-score').value);
-    const games = Number($('admin-edit-games').value);
-    const rankedWins = Number($('admin-edit-wins').value);
-    const rankedLosses = Number($('admin-edit-losses').value);
-    const totalGuesses = Number($('admin-edit-guesses').value);
-    const totalDist = Number($('admin-edit-dist').value);
-    const playTimeSeconds = Number($('admin-edit-playtime').value);
-    if(!uid || [elo, score, games, rankedWins, rankedLosses, totalGuesses, totalDist, playTimeSeconds].some(Number.isNaN)) { toast("Ervenytelen adat!", true); return; }
+    const uid = $('admin-edit-uid').value; const elo = Number($('admin-edit-elo').value); const score = Number($('admin-edit-score').value);
+    const games = Number($('admin-edit-games').value); const rankedWins = Number($('admin-edit-wins').value); const rankedLosses = Number($('admin-edit-losses').value);
+    const totalGuesses = Number($('admin-edit-guesses').value); const totalDist = Number($('admin-edit-dist').value); const playTimeSeconds = Number($('admin-edit-playtime').value);
+    if(!uid) return;
     try {
       const patch = { elo, totalScore: score, gamesPlayed: games, rankedWins, rankedLosses, totalGuesses, totalDist, playTimeSeconds };
       await updateDoc(doc(db, lbCol, uid), patch);
-      const local = allProfilesCache.find(x => x.uid === uid);
-      if(local) Object.assign(local, patch);
-      toast("Sikeres mentes!");
-      window.adminBackToList();
-      window.renderAdminData();
-    } catch(e) { toast("Hiba a mentesnel!", true); }
+      toast("Sikeres mentés!"); window.adminBackToList(); window.renderAdminData();
+    } catch(e) { toast("Hiba a mentésnél!", true); }
   };
 
   window.fetchAdminRooms = async () => {
     $('admin-rooms-list').innerHTML = '<div class="p-4 text-center text-slate-500 text-sm"><i class="fa-solid fa-spinner animate-spin"></i> Betöltés...</div>';
     try {
-      const snaps = await getDocs(collection(db, roomsCol));
-      let roomsHTML = '';
+      const snaps = await getDocs(collection(db, roomsCol)); let roomsHTML = '';
       snaps.forEach(doc => {
-        const r = doc.data();
-        const pCount = r.players ? Object.keys(r.players).length : 0;
+        const r = doc.data(); const pCount = r.players ? Object.keys(r.players).length : 0;
         const stateColor = r.state === 'playing' ? 'text-green-400' : (r.state === 'waiting' ? 'text-yellow-400' : 'text-slate-400');
         roomsHTML += `
           <div class="flex justify-between items-center p-3 bg-black/20 border-b border-white/5 text-sm hover:bg-black/40 transition">
-            <div>
-              <div class="font-black text-white">${r.type.toUpperCase()} <span class="text-slate-500 text-xs font-normal">(${r.id})</span></div>
-              <div class="text-xs mt-1 font-bold ${stateColor}">Állapot: ${r.state} | Kör: ${r.round} | Játékosok: ${pCount}</div>
-            </div>
-            <button class="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs" onclick="adminCloseRoom('${r.id}')">
-              <i class="fa-solid fa-power-off"></i> Lekapcsol
-            </button>
-          </div>
-        `;
+            <div><div class="font-black text-white">${r.type.toUpperCase()} <span class="text-slate-500 text-xs font-normal">(${r.id})</span></div><div class="text-xs mt-1 font-bold ${stateColor}">Állapot: ${r.state} | Kör: ${r.round} | Játékosok: ${pCount}</div></div>
+            <button class="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition font-bold text-xs" onclick="adminCloseRoom('${r.id}')"><i class="fa-solid fa-power-off"></i></button>
+          </div>`;
       });
       $('admin-rooms-list').innerHTML = roomsHTML || '<div class="p-4 text-center text-slate-500">Nincs aktív szoba</div>';
     } catch(e) { $('admin-rooms-list').innerHTML = '<div class="p-4 text-center text-red-400">Hiba a betöltéskor</div>'; }
   };
+  window.adminCloseRoom = async (roomId) => { if(confirm('Törlöd ezt a szobát?')) { try { await deleteDoc(doc(db, roomsCol, roomId)); toast("Szoba törölve!"); window.fetchAdminRooms(); } catch(e) {} } };
 
-  window.adminCloseRoom = async (roomId) => {
-    if(confirm('Biztosan törlöd ezt a szobát? Mindenki ki lesz dobva.')) {
-      try { await deleteDoc(doc(db, roomsCol, roomId)); toast("Szoba sikeresen törölve!"); window.fetchAdminRooms(); } 
-      catch(e) { toast("Hiba a törlésnél!", true); }
-    }
-  };
-
-  window.saveUserStat = async (uid, field, val) => {
-    if(isNaN(val)) return;
-    try { await updateDoc(doc(db, lbCol, uid), { [field]: Number(val) }); toast("Sikeres módosítás!"); } catch(e) { toast("Hiba a mentésnél!", true); }
-  };
-  window.wipeUser = async (uid) => {
-    if(confirm('Biztosan törlöd ezt a felhasználót?')) {
-      await deleteDoc(doc(db, lbCol, uid)); toast("Felhasználó törölve.");
-    }
-  };
-
-  // --- LOCATIONS DB ---
+  // --- LOCATIONS DB & RANDOM GENERATOR ---
   const LOCS = {
     famous: [
       {lat: 48.858093, lng: 2.294694, name: "Eiffel-torony"}, {lat: 40.758896, lng: -73.985130, name: "Times Square"}, 
@@ -984,32 +883,38 @@
     ],
     europe: [
       {lat: 47.497913, lng: 19.040236, name: "Budapest, Lánchíd"}, {lat: 51.503324, lng: -0.119543, name: "London Eye"}, 
-      {lat: 52.516275, lng: 13.377704, name: "Brandenburgi kapu"}, {lat: 40.416775, lng: -3.703790, name: "Madrid, Sol"}
+      {lat: 52.516275, lng: 13.377704, name: "Brandenburgi kapu"}, {lat: 40.416775, lng: -3.703790, name: "Madrid, Sol"},
+      {lat: 48.2082, lng: 16.3738, name: "Bécs"}, {lat: 41.3851, lng: 2.1734, name: "Barcelona"}, {lat: 55.6761, lng: 12.5683, name: "Koppenhága"}
     ],
     hungary: [
-      {lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.531604, lng: 21.627312, name: "Debrecen, Nagytemplom"}, 
-      {lat: 46.253, lng: 20.1414, name: "Szeged, Dóm tér"}, {lat: 46.072735, lng: 18.232266, name: "Pécs, Széchenyi tér"}
+      {lat: 47.4979, lng: 19.0402, name: "Lánchíd"}, {lat: 47.531604, lng: 21.627312, name: "Debrecen"}, 
+      {lat: 46.253, lng: 20.1414, name: "Szeged"}, {lat: 46.072735, lng: 18.232266, name: "Pécs"},
+      {lat: 47.6833, lng: 17.6351, name: "Győr"}, {lat: 47.1899, lng: 18.4103, name: "Székesfehérvár"}
     ]
   };
-  const verifiedWorldSpots = [
-    {lat: 34.052235, lng: -118.243683}, {lat: -22.906847, lng: -43.172896}, {lat: 35.6762, lng: 139.6503}, {lat: -34.603722, lng: -58.381592},
-    {lat: 37.7749, lng: -122.4194}, {lat: 51.5074, lng: -0.1278}, {lat: -33.9249, lng: 18.4241}, {lat: 1.3521, lng: 103.8198}
-  ];
-  LOCS.world = [...LOCS.famous, ...LOCS.europe, ...LOCS.hungary, ...verifiedWorldSpots];
 
-  // --- UTILS ---
-  function toast(msg, isErr=false) {
-    const t = $('toast');
-    t.innerHTML = (isErr?'<i class="fa-solid fa-triangle-exclamation text-red-400"></i>':'<i class="fa-solid fa-check-circle text-green-400"></i>') + `<span class="ml-2">${msg}</span>`;
-    t.style.transform = 'translate(-50%, 0)';
-    setTimeout(() => t.style.transform = 'translate(-50%, -150%)', 3500);
+  // Tágas befoglaló dobozok a "Világ" módhoz, amikből a generátor választ
+  const COUNTRY_BOUNDS = [
+    [25,-45, 110, 153], [-33, 5, -73, -34], [36, 71, -10, 30], [-34, -22, 16, 32], 
+    [23, 45, 128, 146], [3, 20, 97, 105], [25, 49, -125, -66], [-55, -20, -73, -53]
+  ];
+
+  function getGlobalRandomLoc() {
+    const box = COUNTRY_BOUNDS[Math.floor(Math.random() * COUNTRY_BOUNDS.length)];
+    const lat = box[0] + Math.random() * (box[1] - box[0]);
+    const lng = box[2] + Math.random() * (box[3] - box[2]);
+    return { lat, lng, name: "Véletlenszerű Hely" };
   }
-  function showScr(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
-  function openOverlay(id) { $(id).style.display = 'flex'; }
-  window.closeOverlay = (id) => { $(id).style.display = 'none'; };
-  function rCode() { return Math.random().toString(36).slice(2,8).toUpperCase(); }
-  function shuf(arr) { return arr.sort(() => Math.random() - 0.5); }
-  function getLocs(reg, n) { return shuf([...(LOCS[reg]||LOCS.world)]).slice(0, Math.max(1, n)); }
+
+  function getLocs(reg, n) {
+    if (reg === 'world') {
+      let arr = [];
+      for(let i=0; i<n; i++) arr.push(getGlobalRandomLoc());
+      return arr;
+    }
+    const list = LOCS[reg] || LOCS.europe;
+    return [...list].sort(() => Math.random() - 0.5).slice(0, Math.max(1, n));
+  }
   
   function getDist(lat1, lon1, lat2, lon2) {
     const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
@@ -1027,32 +932,100 @@
     return {n:'Mester', c:'text-purple-400 bg-purple-950/50 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]'};
   }
 
-  // --- COMPASS UI BUILDER ---
+  function toast(msg, isErr=false) {
+    const t = $('toast'); t.innerHTML = (isErr?'<i class="fa-solid fa-triangle-exclamation text-red-400"></i>':'<i class="fa-solid fa-check-circle text-green-400"></i>') + `<span class="ml-2">${msg}</span>`;
+    t.style.transform = 'translate(-50%, 0)'; setTimeout(() => t.style.transform = 'translate(-50%, -150%)', 3500);
+  }
+  function showScr(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+  function openOverlay(id) { $(id).style.display = 'flex'; }
+  window.closeOverlay = (id) => { $(id).style.display = 'none'; };
+  function rCode() { return Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+  // --- GOOGLE MAPS API & COMPASS ---
+  let gmapsLoaded = false;
+  let svPanorama = null;
+  let svService = null;
+
+  function loadGoogleMapsAPI() {
+    return new Promise((resolve) => {
+      if (window.google && window.google.maps) { gmapsLoaded = true; return resolve(); }
+      if (!GOOGLE_MAPS_KEY) return resolve();
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=geometry`;
+      script.async = true; script.defer = true;
+      script.onload = () => { gmapsLoaded = true; resolve(); };
+      script.onerror = () => { resolve(); };
+      document.head.appendChild(script);
+    });
+  }
+
   function buildCompass() {
     const strip = $('compass-strip');
     const directions = ['É', '', '', 'K', '', '', 'D', '', '', 'Ny', '', ''];
-    // Ismételjük meg a dizájnt párszor a folyamatos görgetéshez
     let html = '';
-    for(let i=0; i<4; i++) {
-      directions.forEach(dir => {
-        html += `<div class="compass-marker ${dir ? 'major' : ''}">${dir || '|'}</div>`;
-      });
-    }
+    for(let i=0; i<4; i++) directions.forEach(dir => html += `<div class="compass-marker ${dir ? 'major' : ''}">${dir || '|'}</div>`);
     strip.innerHTML = html;
   }
   buildCompass();
 
   function updateCompassUI(heading) {
     const strip = $('compass-strip');
-    // Egy teljes kör (360 fok) a mi beállításunkkal 12 marker * 60px = 720px
-    // 1 fok = 2 pixel
-    // Kezdeti eltolás szükséges, hogy középen legyen az Észak.
     let pxOffset = (heading * 2) % 720; 
-    // Mivel 4-szer ismételtük, berakunk egy offsetet, hogy sose fussunk le a széléről.
     strip.style.transform = `translateX(calc(-50% - ${pxOffset}px + 360px))`;
   }
 
-  // --- AUTH & RECONNECTION ---
+  window.resetStreetView = async () => {
+    if (S.locations && S.locations[S.round - 1]) {
+      const loc = S.locations[S.round - 1];
+      await loadGoogleMapsAPI();
+      
+      $('sv-loader').style.opacity = '1';
+      $('sv-iframe').style.opacity = '0';
+
+      if (gmapsLoaded) {
+        if (!svService) svService = new google.maps.StreetViewService();
+        
+        // Keresés a megadott helyszín közelében, 50km rádiusszal
+        svService.getPanorama({ location: new google.maps.LatLng(loc.lat, loc.lng), radius: 50000, source: google.maps.StreetViewSource.OUTDOOR }, (data, status) => {
+          let finalLat = loc.lat, finalLng = loc.lng;
+          if (status === 'OK') {
+            finalLat = data.location.latLng.lat();
+            finalLng = data.location.latLng.lng();
+            // Mentsük el a tényleges pontot a számoláshoz!
+            S.locations[S.round - 1].lat = finalLat;
+            S.locations[S.round - 1].lng = finalLng;
+          }
+
+          if (!svPanorama) {
+            svPanorama = new google.maps.StreetViewPanorama($('sv-iframe'), {
+              position: {lat: finalLat, lng: finalLng},
+              pov: {heading: 0, pitch: 0},
+              zoom: 1, disableDefaultUI: true, showRoadLabels: false, zoomControl: true, panControl: true
+            });
+            svPanorama.addListener('pov_changed', () => { updateCompassUI(svPanorama.getPov().heading); });
+          } else {
+            svPanorama.setPosition({lat: finalLat, lng: finalLng});
+            svPanorama.setPov({heading: 0, pitch: 0});
+          }
+          
+          updateCompassUI(0);
+          $('sv-loader').style.opacity = '0';
+          $('sv-iframe').style.opacity = '1';
+        });
+      } else {
+        // Fallback ha nincs működő API kulcs
+        const ifr = document.createElement('iframe');
+        ifr.src = `https://www.google.com/maps?layer=c&cbll=${loc.lat},${loc.lng}&cbp=12,0,0,0,0&output=svembed`;
+        ifr.style.cssText = 'position:absolute;inset:-6%;width:112%;height:112%;border:none;pointer-events:auto;';
+        $('sv-iframe').innerHTML = '';
+        $('sv-iframe').appendChild(ifr);
+        ifr.onload = () => { $('sv-loader').style.opacity = '0'; $('sv-iframe').style.opacity = '1'; };
+        updateCompassUI(0);
+      }
+    }
+  };
+
+  // --- AUTH & DATA ---
   async function performAuth() {
     try {
       if (isOwnFirebase) { await signInAnonymously(auth); } else {
@@ -1064,8 +1037,7 @@
 
   onAuthStateChanged(auth, async (user) => {
     if(user) {
-      currentUser = user;
-      await loadUserProfile();
+      currentUser = user; await loadUserProfile();
       S.userData.lastSeen = Date.now(); await saveUserProfile();
       S.presenceInterval = setInterval(() => { S.userData.lastSeen = Date.now(); saveUserProfile(); }, 60000);
       listenLeaderboard();
@@ -1081,7 +1053,6 @@
       const myRemoteProfile = players.find(p => p.uid === currentUser?.uid);
       if(myRemoteProfile && S.userData.isGoogle) S.userData = myRemoteProfile;
       if(S.mode === 'menu') updateLeaderboardUI();
-      if($('overlay-admin').style.display === 'flex' && !$('admin-users-list-container').classList.contains('hidden')) window.renderAdminData();
     });
   }
 
@@ -1093,12 +1064,8 @@
       const isOnline = (now - (p.lastSeen||0)) < 120000;
       return `
         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-white/5 hover:bg-slate-700/60 transition cursor-pointer group" onclick="showProfile('${p.uid}')">
-          <div class="flex items-center gap-3">
-            <span class="font-black w-6 text-center ${medal}">${i+1}.</span>
-            <div class="relative"><img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-blue-400 transition"><div class="absolute bottom-0 right-0 status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div></div>
-            <span class="font-black text-sm text-slate-200 group-hover:text-white">${p.name}</span>
-          </div>
-          <div class="text-right"><div class="font-black text-blue-400 text-lg leading-none">${p.elo}</div><div class="text-[10px] font-black uppercase tracking-widest ${r.c} inline-block mt-1 bg-transparent border-none">${r.n}</div></div>
+          <div class="flex items-center gap-3"><span class="font-black w-6 text-center ${medal}">${i+1}.</span><div class="relative"><img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-blue-400 transition"><div class="absolute bottom-0 right-0 status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div></div><span class="font-black text-sm text-slate-200 group-hover:text-white">${p.name}</span></div>
+          <div class="text-right"><div class="font-black text-blue-400 text-lg leading-none">${p.elo}</div><div class="text-[10px] font-black uppercase tracking-widest ${r.c} inline-block mt-1 bg-transparent border-none px-1 rounded">${r.n}</div></div>
         </div>`;
     }).join('');
     $('leaderboard-preview-list').innerHTML = renderList(10); $('full-leaderboard-list').innerHTML = renderList(50);
@@ -1141,8 +1108,7 @@
 
   $('btn-login-google').onclick = async () => {
     if (!isOwnFirebase) {
-      toast("A bejelentkezés emulálva a Canvas környezetben.");
-      const name = "ProJátékos" + Math.floor(Math.random()*100);
+      toast("A bejelentkezés emulálva a Canvas környezetben."); const name = "ProJátékos" + Math.floor(Math.random()*100);
       if(!currentUser) currentUser = { uid: 'canvas_user' };
       S.userData = { name, elo: 1200, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`, isGoogle: true, gamesPlayed:10, rankedWins:6, rankedLosses:4, totalDist:45000, totalGuesses:50, totalScore: 150000, playTimeSeconds:3600, lastSeen: Date.now() };
       await saveUserProfile(); goToMenu(); return;
@@ -1154,12 +1120,7 @@
     } catch (error) { toast("Hiba a bejelentkezés során.", true); }
   };
 
-  window.logout = async () => {
-    try { await auth.signOut(); } catch(e){}
-    if(S.presenceInterval) clearInterval(S.presenceInterval);
-    currentUser = null; S.mode = 'menu'; showScr('screen-login');
-  };
-
+  window.logout = async () => { try { await auth.signOut(); } catch(e){} if(S.presenceInterval) clearInterval(S.presenceInterval); currentUser = null; S.mode = 'menu'; showScr('screen-login'); };
   async function loadUserProfile() { if(!currentUser) return; try { const snap = await getDoc(doc(db, lbCol, currentUser.uid)); if(snap.exists()) S.userData = { ...S.userData, ...snap.data() }; } catch(e) {} }
   async function saveUserProfile() { if(!currentUser || !S.userData.isGoogle) return; try { await setDoc(doc(db, lbCol, currentUser.uid), S.userData, {merge: true}); } catch(e) {} }
 
@@ -1167,66 +1128,32 @@
     showScr('screen-menu'); const r = getRankObj(S.userData.elo); const lvl = getLevel(S.userData.totalScore);
     $('nav-name').innerText = S.userData.name; $('nav-avatar').src = S.userData.avatar; $('nav-elo').innerText = S.userData.elo + ' Elo'; $('nav-level').innerText = 'Szint ' + lvl;
     $('nav-rank-name').innerText = r.n; $('nav-rank-name').className = `text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest ${r.c}`;
-    
     const rCard = $('card-ranked');
-    if(!S.userData.isGoogle) {
-      rCard.style.opacity = '0.6'; rCard.querySelector('#ranked-badge').innerText = 'GOOGLE KÖTELEZŐ';
-      rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-slate-600 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md';
-    } else {
-      rCard.style.opacity = '1'; rCard.querySelector('#ranked-badge').innerText = 'ÉLES';
-      rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-red-500 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md animate-pulse';
-    }
+    if(!S.userData.isGoogle) { rCard.style.opacity = '0.6'; rCard.querySelector('#ranked-badge').innerText = 'GOOGLE KÖTELEZŐ'; rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-slate-600 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md'; }
+    else { rCard.style.opacity = '1'; rCard.querySelector('#ranked-badge').innerText = 'ÉLES'; rCard.querySelector('#ranked-badge').className = 'text-[10px] bg-red-500 px-2 py-1 rounded text-white font-black uppercase tracking-widest shadow-md animate-pulse'; }
     updateLeaderboardUI();
   }
 
   window.openFullLeaderboard = () => { openOverlay('overlay-leaderboard'); };
   window.showMyProfile = () => { if(S.userData.isGoogle) showProfile(currentUser.uid); else toast("Jelentkezz be a teljes profilhoz!"); };
   window.showProfile = (uid) => {
-    const p = allProfilesCache.find(x => x.uid === uid) || (uid === currentUser?.uid ? S.userData : null);
-    if(!p) return;
-    $('prof-avatar').src = p.avatar;
-    $('prof-name').innerText = p.name;
-    $('prof-elo').innerText = p.elo || 0;
-
+    const p = allProfilesCache.find(x => x.uid === uid) || (uid === currentUser?.uid ? S.userData : null); if(!p) return;
+    $('prof-avatar').src = p.avatar; $('prof-name').innerText = p.name; $('prof-elo').innerText = p.elo || 0;
     const isOnline = (Date.now() - (p.lastSeen || 0)) < 120000 || uid === currentUser?.uid;
     $('prof-status').className = `absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-slate-900 status-dot ${isOnline ? 'status-online' : 'status-offline'}`;
-
-    const r = getRankObj(p.elo || 0);
-    $('prof-rank-badge').innerText = r.n;
-    $('prof-rank-badge').className = `text-xs font-black px-3 py-1 rounded-full border border-slate-700 uppercase tracking-widest text-white shadow-lg ${r.c.split(' ')[1]}`;
-
-    const lvl = getLevel(p.totalScore || 0);
-    const xpStart = getXpForPrevLevel(lvl);
-    const xpNext = getXpForNextLevel(lvl);
-    const xpCurrent = p.totalScore || 0;
-    const pct = Math.max(0, Math.min(100, ((xpCurrent - xpStart) / (xpNext - xpStart)) * 100));
-
-    $('prof-level-txt').innerText = `Szint ${lvl}`;
-    $('prof-xp').innerText = xpCurrent;
-    setTimeout(() => { $('prof-xp-bar').style.width = pct + '%'; }, 100);
-
-    $('prof-games').innerText = p.gamesPlayed || 0;
-    const w = p.rankedWins || 0;
-    const l = p.rankedLosses || 0;
-    const totalRanked = w + l;
-    $('prof-wins').innerText = w;
-    $('prof-losses').innerText = l;
-    $('prof-winrate').innerText = totalRanked > 0 ? Math.round((w / totalRanked) * 100) + '%' : '0%';
-
-    const avgD = p.totalGuesses > 0 ? (p.totalDist / p.totalGuesses) : 0;
-    $('prof-avgdist').innerText = fmtDist(avgD);
-
-    const hrs = Math.floor((p.playTimeSeconds || 0) / 3600);
-    $('prof-playtime').innerText = hrs + ' ora';
-
+    const r = getRankObj(p.elo || 0); $('prof-rank-badge').innerText = r.n; $('prof-rank-badge').className = `text-xs font-black px-3 py-1 rounded-full border border-slate-700 uppercase tracking-widest text-white shadow-lg ${r.c.split(' ')[1]}`;
+    const lvl = getLevel(p.totalScore || 0); const xpStart = getXpForPrevLevel(lvl); const xpNext = getXpForNextLevel(lvl); const xpCurrent = p.totalScore || 0; const pct = Math.max(0, Math.min(100, ((xpCurrent - xpStart) / (xpNext - xpStart)) * 100));
+    $('prof-level-txt').innerText = `Szint ${lvl}`; $('prof-xp').innerText = xpCurrent; setTimeout(() => { $('prof-xp-bar').style.width = pct + '%'; }, 100);
+    $('prof-games').innerText = p.gamesPlayed || 0; const w = p.rankedWins || 0; const l = p.rankedLosses || 0; const totalRanked = w + l; $('prof-wins').innerText = w; $('prof-losses').innerText = l; $('prof-winrate').innerText = totalRanked > 0 ? Math.round((w / totalRanked) * 100) + '%' : '0%';
+    const avgD = p.totalGuesses > 0 ? (p.totalDist / p.totalGuesses) : 0; $('prof-avgdist').innerText = fmtDist(avgD);
+    const hrs = Math.floor((p.playTimeSeconds || 0) / 3600); $('prof-playtime').innerText = hrs + ' óra';
     openOverlay('overlay-profile');
   };
 
-  // --- MENU ACTIONS ---
   window.menuAction = (mode) => {
     if(!currentUser) { toast("A folytatáshoz bejelentkezés szükséges!", true); return; }
     if(mode === 'ranked') { if(!S.userData.isGoogle) { toast("A Ranked módhoz Google bejelentkezés szükséges!", true); return; } startRankedQueue(); }
-    else if(mode === 'party') { $('party-select').style.display = 'grid'; $('party-lobby').style.display = 'none'; openOverlay('overlay-party'); }
+    else if(mode === 'party') { $('party-select').style.display = 'grid'; $('party-lobby').style.display = 'none'; $('party-settings-blocker').style.display = 'none'; openOverlay('overlay-party'); }
     else if(mode === 'solo') { 
       const selNode = document.querySelector('#solo-region-select .custom-select');
       if(selNode) { selNode.dataset.value = 'world'; selNode.querySelector('span').innerText = '🌍 Egész Világ'; }
@@ -1244,25 +1171,20 @@
     if(guessMap) { guessMap.remove(); guessMarker = null; }
     guessMap = L.map('guess-map', { center: [20,0], zoom: 2, zoomControl: false, attributionControl: false });
     setMapTiles();
-    
     guessMap.on('click', (e) => {
       if($('btn-guess').disabled && S.hasGuessed) return;
       if(!guessMarker) guessMarker = L.marker(e.latlng, {icon: L.divIcon({className:'', html:'<div class="pin me"></div>', iconSize:[28,28], iconAnchor:[14,28]})}).addTo(guessMap);
       else guessMarker.setLatLng(e.latlng);
       $('btn-guess').disabled = false; $('map-wrapper').classList.add('expanded');
     });
-
-    const mw = $('map-wrapper');
-    mw.onmouseenter = () => { if(window.innerWidth > 768) mw.classList.add('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); };
-    mw.onmouseleave = () => { if(window.innerWidth > 768) mw.classList.remove('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); };
-    mw.addEventListener('touchstart', (e) => { if(e.target.id !== 'btn-guess' && !e.target.classList.contains('map-btn')) { mw.classList.add('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); } }, {passive: true});
+    const mw = $('map-wrapper'); mw.onmouseenter = () => { if(window.innerWidth > 768) mw.classList.add('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); }; mw.onmouseleave = () => { if(window.innerWidth > 768) mw.classList.remove('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); }; mw.addEventListener('touchstart', (e) => { if(e.target.id !== 'btn-guess' && !e.target.classList.contains('map-btn')) { mw.classList.add('expanded'); setTimeout(()=>guessMap.invalidateSize(), 300); } }, {passive: true});
   }
 
   window.toggleMapType = () => { S.mapSatellite = !S.mapSatellite; setMapTiles(); $('btn-map-toggle').innerHTML = S.mapSatellite ? '<i class="fa-solid fa-map mr-1"></i>Utcai' : '<i class="fa-solid fa-satellite mr-1"></i>Műhold'; };
   function setMapTiles() { if(currentTileLayer) guessMap.removeLayer(currentTileLayer); currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 20 }).addTo(guessMap); }
   window.resetMapView = () => { if(guessMap) guessMap.setView([20,0], 2); };
 
-  // --- GAME LOGIC ---
+  // --- GAMEPLAY ---
   window.startSoloGame = () => {
     S.mode = 'solo'; S.round = 1; S.score = 0; S.isHost = true;
     S.settings.rounds = parseInt($('solo-rounds').value); S.settings.timePerRound = parseInt($('solo-time').value);
@@ -1271,36 +1193,22 @@
     closeOverlay('overlay-solo'); showScr('screen-game'); S.playTimeStart = Date.now(); playRound();
   };
 
-  window.resetStreetView = () => {
-    if (S.locations && S.locations[S.round - 1]) {
-      const loc = S.locations[S.round - 1];
-      const key = encodeURIComponent(GOOGLE_MAPS_EMBED_KEY || '');
-      const location = `${loc.lat},${loc.lng}`;
-      $('sv-iframe').src = USE_GOOGLE_MAPS_EMBED_API && key
-        ? `https://www.google.com/maps/embed/v1/streetview?key=${key}&location=${location}&heading=0&pitch=0&fov=90`
-        : `https://www.google.com/maps?layer=c&cbll=${location}&cbp=12,0,0,0,0&output=svembed`;
-      updateCompassUI(0);
-    }
-  };
-
-  // Átírjuk a UI frissítőket Rankedhez
   function updateRankedHUD(playersList) {
     if(S.mode !== 'ranked') return;
-    const maxScore = S.settings.rounds * 5000;
     
-    let me = playersList.find(p => p.uid === currentUser.uid) || {score: S.score, name: S.userData.name, avatar: S.userData.avatar};
+    let me = playersList.find(p => p.uid === currentUser.uid) || {health: RANKED_MAX_HP, name: S.userData.name, avatar: S.userData.avatar};
     let opp = playersList.find(p => p.uid !== currentUser.uid);
 
-    $('rh-name-me').innerText = me.name;
-    $('rh-avatar-me').src = me.avatar;
-    $('rh-score-me').innerText = me.score || 0;
-    $('rh-bar-me').style.width = Math.max(5, ((me.score || 0) / maxScore) * 100) + '%';
+    $('rh-name-me').innerText = me.name; $('rh-avatar-me').src = me.avatar; $('rh-score-me').innerText = (me.health ?? RANKED_MAX_HP) + ' HP';
+    const mePct = Math.max(0, ((me.health ?? RANKED_MAX_HP) / RANKED_MAX_HP) * 100);
+    $('rh-bar-me').style.width = mePct + '%';
+    if(mePct < 30) $('rh-bar-me').classList.add('dmg'); else $('rh-bar-me').classList.remove('dmg');
 
     if(opp) {
-       $('rh-name-opp').innerText = opp.name;
-       $('rh-avatar-opp').src = opp.avatar;
-       $('rh-score-opp').innerText = opp.score || 0;
-       $('rh-bar-opp').style.width = Math.max(5, ((opp.score || 0) / maxScore) * 100) + '%';
+       $('rh-name-opp').innerText = opp.name; $('rh-avatar-opp').src = opp.avatar; $('rh-score-opp').innerText = (opp.health ?? RANKED_MAX_HP) + ' HP';
+       const oppPct = Math.max(0, ((opp.health ?? RANKED_MAX_HP) / RANKED_MAX_HP) * 100);
+       $('rh-bar-opp').style.width = oppPct + '%';
+       if(oppPct < 30) $('rh-bar-opp').classList.add('dmg'); else $('rh-bar-opp').classList.remove('dmg');
     }
   }
 
@@ -1308,38 +1216,22 @@
     S.hasGuessed = false; S.timerSpeed = 1; $('hud-time').classList.remove('timer-alert');
     $('btn-guess').disabled = true; $('btn-guess').innerHTML = 'Tipp beküldése <i class="fa-solid fa-map-pin ml-1"></i>';
     if(guessMarker) { guessMap.removeLayer(guessMarker); guessMarker = null; }
-    $('map-wrapper').classList.remove('expanded');
-    initMap();
-
-    $('sv-loader').style.opacity = '1';
-    $('sv-iframe').style.opacity = '0';
-    let svLoaded = false;
-    $('sv-iframe').onload = () => {
-      if(svLoaded) return;
-      svLoaded = true;
-      $('sv-loader').style.opacity = '0';
-      $('sv-iframe').style.opacity = '1';
-      if(!isResume) startTimer();
-    };
-    resetStreetView();
-    setTimeout(() => {
-      if(svLoaded) return;
-      svLoaded = true;
-      $('sv-loader').style.opacity = '0';
-      $('sv-iframe').style.opacity = '1';
-      if(!isResume) startTimer();
-    }, 5000);
-
-    $('hud-round').innerText = S.round; $('hud-score').innerText = S.score;
-
+    $('map-wrapper').classList.remove('expanded'); initMap();
+    
+    $('global-compass').style.display = 'block';
+    
+    // UI frissítések
     if(S.mode === 'ranked') {
-      $('hud').style.display = 'none'; $('ranked-hud').style.display = 'flex';
-      if(S.roomData && S.roomData.players) {
-         updateRankedHUD(Object.keys(S.roomData.players).map(k => ({uid: k, ...S.roomData.players[k]})));
-      }
+      $('hud-score-container').style.display = 'none'; $('hud-max-round').innerText = ''; // Rankedben végtelen lehet
+      $('ranked-hud').style.display = 'flex';
+      if(S.roomData && S.roomData.players) updateRankedHUD(Object.keys(S.roomData.players).map(k => ({uid: k, ...S.roomData.players[k]})));
     } else {
-      $('hud').style.display = 'flex'; $('ranked-hud').style.display = 'none';
+      $('hud-score-container').style.display = 'block'; $('hud-max-round').innerText = '/' + S.settings.rounds;
+      $('ranked-hud').style.display = 'none';
     }
+    
+    $('hud-round').innerText = S.round; $('hud-score').innerText = S.score;
+    resetStreetView().then(() => { if(!isResume) startTimer(); });
   }
 
   function formatTime(sec) { const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; }
@@ -1387,34 +1279,55 @@
   function showRoundResults(players) {
     const loc = S.locations[S.round - 1]; $('res-loc-name').innerText = loc.name || 'Helyszín';
     const myRes = players.find(p => p.uid === currentUser.uid);
-    $('res-points').innerText = `+${myRes ? myRes.pts : 0}`; $('res-dist').innerText = myRes ? fmtDist(myRes.dist) + ' távolság' : 'Időtúllépés';
+    
+    $('res-score-title').innerText = S.mode === 'ranked' ? 'Életerő Változás' : 'Kör pontszám';
+    
+    if (S.mode === 'ranked') {
+      const dmgSpan = myRes && myRes.dmgTaken > 0 ? `<span class="text-red-500">-${myRes.dmgTaken} HP</span>` : '<span class="text-slate-400">0 HP</span>';
+      $('res-points').innerHTML = dmgSpan; 
+      $('res-dist').innerText = myRes ? fmtDist(myRes.dist) + ' távolság' : 'Időtúllépés';
+    } else {
+      $('res-points').innerText = `+${myRes ? myRes.pts : 0}`; 
+      $('res-dist').innerText = myRes ? fmtDist(myRes.dist) + ' távolság' : 'Időtúllépés';
+    }
 
     players.sort((a,b) => b.pts - a.pts);
-    $('res-players-list').innerHTML = players.map(p => `
+    $('res-players-list').innerHTML = players.map(p => {
+      let ptsText = S.mode === 'ranked' ? (p.dmgTaken > 0 ? `<span class="text-red-400">-${p.dmgTaken}</span>` : '<span class="text-slate-500">Védett</span>') : `+${p.pts}`;
+      return `
       <li class="flex justify-between items-center bg-slate-800/60 p-3 rounded-xl border border-white/5 ${p.uid===currentUser.uid?'border-blue-500/50 bg-blue-900/30':''}">
-        <div class="flex items-center gap-3"><img src="${p.avatar}" class="w-8 h-8 rounded-full border border-white/10"><span class="font-black text-sm">${p.name}</span><span class="text-xs font-bold text-slate-400 bg-black/40 px-2 py-1 rounded-md ml-2 border border-white/5">${fmtDist(p.dist)}</span></div>
-        <div class="font-black text-green-400 text-lg font-mono">+${p.pts}</div>
-      </li>
-    `).join('');
+        <div class="flex items-center gap-3"><img src="${p.avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover"><span class="font-black text-sm">${p.name}</span><span class="text-xs font-bold text-slate-400 bg-black/40 px-2 py-1 rounded-md ml-2 border border-white/5">${fmtDist(p.dist)}</span></div>
+        <div class="font-black text-lg font-mono ${S.mode==='ranked'?'':'text-green-400'}">${ptsText}</div>
+      </li>`
+    }).join('');
 
     if(!resultMap) { resultMap = L.map('result-map', {zoomControl: false, attributionControl: false}).setView([loc.lat, loc.lng], 4); L.tileLayer(TILE_STREET, {maxZoom: 20}).addTo(resultMap); }
     resultLayers.forEach(l => resultMap.removeLayer(l)); resultLayers = [];
+    
     const realMarker = L.marker([loc.lat, loc.lng], {icon: L.divIcon({className:'', html:'<div class="pin real"></div>', iconSize:[34,34], iconAnchor:[17,34]})}).addTo(resultMap);
+    realMarker.bindTooltip("Helyes Megoldás", {permanent: true, direction: "top", className: "bg-green-500 text-white font-black border-none rounded-xl"}).openTooltip();
     resultLayers.push(realMarker); const bounds = [[loc.lat, loc.lng]];
 
     players.forEach(p => {
       if(p.guess && p.guess.lat !== 0) {
         const isMe = p.uid === currentUser.uid; const color = isMe ? '#3b82f6' : '#a855f7';
         const m = L.marker([p.guess.lat, p.guess.lng], {icon: L.divIcon({className:'', html:`<div class="pin ${isMe?'me':'other'}"></div>`, iconSize:[28,28], iconAnchor:[14,28]})}).addTo(resultMap);
+        m.bindTooltip(`<b>${p.name}</b><br>${fmtDist(p.dist)}`, {permanent: true, direction: "bottom", className: "bg-slate-900 text-white font-bold border border-white/10 rounded-xl"}).openTooltip();
         const l = L.polyline([[loc.lat, loc.lng], [p.guess.lat, p.guess.lng]], {color: color, weight: 3, dashArray: '5, 10'}).addTo(resultMap);
         resultLayers.push(m, l); bounds.push([p.guess.lat, p.guess.lng]);
       }
     });
 
-    setTimeout(() => { resultMap.invalidateSize(); if(bounds.length > 1) resultMap.fitBounds(bounds, {padding: [40,40]}); }, 200);
+    setTimeout(() => { resultMap.invalidateSize(); if(bounds.length > 1) resultMap.fitBounds(bounds, {padding: [50,50]}); }, 300);
+
+    $('global-compass').style.display = 'none';
 
     if(S.mode === 'solo' || S.isHost) {
-      $('btn-next-round').style.display = 'block'; $('btn-next-round').innerHTML = S.round >= S.settings.rounds ? 'Végeredmény <i class="fa-solid fa-flag-checkered ml-2"></i>' : 'Következő kör <i class="fa-solid fa-arrow-right ml-2"></i>';
+      $('btn-next-round').style.display = 'block'; 
+      let isFinal = S.mode === 'solo' ? S.round >= S.settings.rounds : S.roomData?.isKnockout || S.round >= S.settings.rounds;
+      if (S.mode === 'ranked') isFinal = S.roomData?.isKnockout; // Ranked addig megy, amíg valaki le nem nullázódik
+      
+      $('btn-next-round').innerHTML = isFinal ? 'Végeredmény <i class="fa-solid fa-flag-checkered ml-2"></i>' : 'Következő kör <i class="fa-solid fa-arrow-right ml-2"></i>';
       $('res-waiting').style.display = 'none';
     } else { $('btn-next-round').style.display = 'none'; $('res-waiting').style.display = 'block'; }
     openOverlay('overlay-round-result');
@@ -1425,14 +1338,33 @@
       if(S.round >= S.settings.rounds) showFinalResults([{uid: currentUser.uid, name: S.userData.name, score: S.score, avatar: S.userData.avatar}]);
       else { S.round++; closeOverlay('overlay-round-result'); playRound(); }
     } else if(S.isHost) {
-      const nextState = S.round >= S.settings.rounds ? 'finished' : 'playing'; const updateData = { state: nextState };
-      if(nextState === 'playing') { updateData.round = S.round + 1; for(let uid in S.roomData.players) { updateData[`players.${uid}.hasGuessed`] = false; updateData[`players.${uid}.guess`] = null; } }
+      const isKnockout = S.mode === 'ranked' ? S.roomData?.isKnockout : false;
+      const nextState = (isKnockout || (S.mode !== 'ranked' && S.round >= S.settings.rounds)) ? 'finished' : 'playing'; 
+      const updateData = { state: nextState };
+      if(nextState === 'playing') {
+        updateData.round = S.round + 1;
+        // Ranked esetén folyamatosan generáljuk a következő helyszínt, ha kell
+        if (S.mode === 'ranked' && !S.locations[S.round]) {
+           const newLocs = getLocs('world', 1);
+           updateData.locations = [...S.locations, newLocs[0]];
+        }
+        for(let uid in S.roomData.players) { updateData[`players.${uid}.hasGuessed`] = false; updateData[`players.${uid}.guess`] = null; }
+      }
       await updateDoc(doc(db, roomsCol, S.roomId), updateData);
     }
   };
 
   async function showFinalResults(players) {
-    closeOverlay('overlay-round-result'); players.sort((a,b) => b.score - a.score);
+    closeOverlay('overlay-round-result'); 
+    
+    if (S.mode === 'ranked') {
+      players.sort((a,b) => (b.health ?? 0) - (a.health ?? 0)); // Életerő alapján
+      $('final-title').innerText = "Párbaj Végeredmény";
+    } else {
+      players.sort((a,b) => b.score - a.score); // Pont alapján
+      $('final-title').innerText = "Végeredmény";
+    }
+
     const pt = Math.round((Date.now() - S.playTimeStart)/1000); S.userData.playTimeSeconds += pt; S.userData.gamesPlayed++;
     
     let myEloDelta = 0;
@@ -1446,67 +1378,81 @@
       } else if (players.length === 2) {
          const me = players.find(p => p.uid === currentUser.uid); const opp = players.find(p => p.uid !== currentUser.uid);
          if (me && opp) {
-           const K = 40; const d = me.score > opp.score ? 1 : (me.score === opp.score ? 0.5 : 0);
-           const expected = 1 / (1 + Math.pow(10, (opp.elo - me.elo) / 400)); myEloDelta = Math.round(K * (d - expected));
+           const meWon = (me.health ?? 0) > (opp.health ?? 0);
+           const K = 40; const expected = 1 / (1 + Math.pow(10, (opp.elo - me.elo) / 400)); 
+           myEloDelta = Math.round(K * ((meWon ? 1 : 0) - expected));
            S.userData.elo = Math.max(0, S.userData.elo + myEloDelta);
-           if(me.score > opp.score) S.userData.rankedWins++; else if(me.score < opp.score) S.userData.rankedLosses++;
+           if(meWon) S.userData.rankedWins++; else S.userData.rankedLosses++;
          }
       }
       players.forEach(p => { if (p.uid === currentUser.uid) p.eloDelta = myEloDelta; else p.eloDelta = -myEloDelta; });
     }
 
-    if (S.mode === 'solo' || S.mode === 'ranked') { S.userData.totalGuesses += S.settings.rounds; S.userData.totalScore += (players.find(p => p.uid === currentUser.uid)?.score || 0); await saveUserProfile(); }
+    if (S.mode === 'solo' || S.mode === 'ranked') { S.userData.totalGuesses += S.round; S.userData.totalScore += (players.find(p => p.uid === currentUser.uid)?.score || 0); await saveUserProfile(); }
 
     const podHtml = (p, height, color, place) => {
       if(!p) return '<div class="w-1/3"></div>';
-      const eloSpan = p.eloDelta !== undefined ? `<div class="text-xs font-black ${p.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}">${p.eloDelta > 0 ? '+'+p.eloDelta : p.eloDelta} Elo</div>` : '';
+      const eloSpan = p.eloDelta !== undefined ? `<div class="text-xs font-black mt-1 bg-black/50 px-2 rounded ${p.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}">${p.eloDelta > 0 ? '+'+p.eloDelta : p.eloDelta} Elo</div>` : '';
+      const displayScore = S.mode === 'ranked' ? Math.max(0, p.health ?? 0) + ' HP' : p.score + ' pt';
       return `
         <div class="w-1/3 flex flex-col items-center justify-end h-full relative z-10 anim-pop" style="animation-delay: ${place*0.2}s">
-          <div class="text-center mb-3"><img src="${p.avatar}" class="w-16 h-16 rounded-full mx-auto border-4 border-${color} shadow-[0_0_15px_currentColor]">
+          <div class="text-center mb-3"><img src="${p.avatar}" class="w-16 h-16 rounded-full mx-auto border-4 border-${color} shadow-[0_0_15px_currentColor] object-cover">
             <div class="text-sm font-black truncate w-24 mt-2 bg-black/60 px-2 py-0.5 rounded-full border border-white/10">${p.name}</div>
-            <div class="text-2xl font-black text-${color} mt-1">${p.score}</div>${eloSpan}
+            <div class="text-xl font-black text-${color} mt-1">${displayScore}</div>${eloSpan}
           </div>
           <div class="${height} w-full bg-${color} rounded-t-2xl opacity-90 flex items-start justify-center pt-3 text-4xl font-black text-white/50 shadow-[inset_0_5px_15px_rgba(255,255,255,0.3)]">${place}</div>
         </div>`;
     };
     $('final-podium').innerHTML = podHtml(players[1], 'h-32', 'slate-400', 2) + podHtml(players[0], 'h-48', 'yellow-400', 1) + podHtml(players[2], 'h-24', 'orange-600', 3);
+    
     $('final-list').innerHTML = players.map((p,i) => {
       const eloSpan = p.eloDelta !== undefined ? `<div class="text-xs font-black text-right ${p.eloDelta > 0 ? 'text-green-400' : 'text-red-400'}">${p.eloDelta > 0 ? '+'+p.eloDelta : p.eloDelta} Elo</div>` : '';
+      const displayScore = S.mode === 'ranked' ? Math.max(0, p.health ?? 0) + ' HP' : p.score + ' pt';
       return `
       <li class="flex justify-between items-center bg-slate-800/60 p-4 rounded-2xl border border-white/5 ${p.uid===currentUser?.uid ? 'border-blue-500 bg-blue-900/40':''}">
-        <div class="flex items-center gap-4"><span class="font-black text-slate-500 w-6 text-xl text-center">${i+1}.</span><img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10"><span class="font-black text-lg">${p.name}</span></div>
-        <div><div class="font-black text-yellow-400 text-xl font-mono text-right">${p.score} pt</div>${eloSpan}</div>
+        <div class="flex items-center gap-4"><span class="font-black text-slate-500 w-6 text-xl text-center">${i+1}.</span><img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover"><span class="font-black text-lg">${p.name}</span></div>
+        <div><div class="font-black text-yellow-400 text-xl font-mono text-right">${displayScore}</div>${eloSpan}</div>
       </li>`
     }).join('');
+    
+    $('global-compass').style.display = 'none';
     openOverlay('overlay-final');
   }
 
-  // --- MULTIPLAYER ---
-  window.createParty = async () => { /* Original Intact */
+  // --- MULTIPLAYER ROOM LOGIC ---
+  window.createParty = async () => { 
     if(!currentUser) { toast("A folytatáshoz bejelentkezés szükséges!", true); return; }
     S.mode = 'party'; S.isHost = true; S.roomId = rCode(); S.round = 1;
     $('party-select').style.display = 'none'; $('party-lobby').style.display = 'grid';
     $('btn-start-party').style.display = 'block'; $('lobby-code-display').innerText = S.roomId;
-    $('party-settings-blocker').style.display = 'none';
+    $('party-settings-blocker').style.display = 'none'; // Host látja
     try {
       const roomData = { id: S.roomId, host: currentUser.uid, state: 'waiting', type: 'party', settings: S.settings, round: 1, locations: getLocs('world', 10), players: { [currentUser.uid]: { name: S.userData.name, avatar: S.userData.avatar, score: 0, hasGuessed: false, guess: null, mobile: isMobileDevice } } };
       await setDoc(doc(db, roomsCol, S.roomId), roomData); listenRoom();
     } catch(e) { console.error(e); toast("Hiba a szoba létrehozásakor!", true); }
   };
   
-  window.joinParty = async () => { /* Original Intact */
+  window.joinParty = async () => { 
     if(!currentUser) return; const code = $('input-party-code').value.trim().toUpperCase(); if(code.length < 2) return;
     try {
       const snap = await getDoc(doc(db, roomsCol, code)); if(!snap.exists() || snap.data().state !== 'waiting') { toast("Érvénytelen vagy elindult szoba!", true); return; }
       S.mode = 'party'; S.isHost = false; S.roomId = code; $('party-select').style.display = 'none'; $('party-lobby').style.display = 'grid'; $('btn-start-party').style.display = 'none'; $('lobby-code-display').innerText = code;
-      $('host-badge').innerText = 'VENDÉG'; $('host-badge').className = 'text-[10px] bg-slate-700 text-slate-300 px-3 py-1 rounded-full border border-slate-600'; $('party-settings-blocker').style.display = 'flex';
+      $('host-badge').innerText = 'VENDÉG'; $('host-badge').className = 'text-[10px] bg-slate-700 text-slate-300 px-3 py-1 rounded-full border border-slate-600'; 
+      $('party-settings-blocker').style.display = 'flex'; // Vendég elől lezárjuk
       const updateData = {}; updateData[`players.${currentUser.uid}`] = { name: S.userData.name, avatar: S.userData.avatar, score: 0, hasGuessed: false, guess: null, mobile: isMobileDevice };
       await updateDoc(doc(db, roomsCol, code), updateData); listenRoom();
     } catch(e) { console.error(e); toast("Hiba a csatlakozás során!", true); }
   };
   
   window.copyCode = () => { navigator.clipboard.writeText(S.roomId).then(()=>toast("Szobakód másolva!")).catch(()=>{}); }
-  window.updateSettingsUI = () => { $('lbl-rounds').innerText = $('set-rounds').value; $('lbl-time').innerText = $('set-time').value + ' mp'; if(S.isHost && S.roomId) { const rs = document.querySelector('#region-custom-select .custom-select'); S.settings = { rounds: parseInt($('set-rounds').value), timePerRound: parseInt($('set-time').value), region: rs ? rs.dataset.value : 'world' }; updateDoc(doc(db, roomsCol, S.roomId), { settings: S.settings }); } };
+  window.updateSettingsUI = () => { 
+    $('lbl-rounds').innerText = $('set-rounds').value; $('lbl-time').innerText = $('set-time').value + ' mp'; 
+    if(S.isHost && S.roomId) { 
+      const rs = document.querySelector('#region-custom-select .custom-select'); 
+      S.settings = { rounds: parseInt($('set-rounds').value), timePerRound: parseInt($('set-time').value), region: rs ? rs.dataset.value : 'world' }; 
+      updateDoc(doc(db, roomsCol, S.roomId), { settings: S.settings }); 
+    } 
+  };
   window.startPartyGame = async () => { if(!S.isHost) return; S.locations = getLocs(S.settings.region, S.settings.rounds); await updateDoc(doc(db, roomsCol, S.roomId), { state: 'playing', locations: S.locations }); };
   window.kickPlayer = async (uid) => { if(!S.isHost || uid === currentUser.uid) return; await updateDoc(doc(db, roomsCol, S.roomId), { [`players.${uid}.kicked`]: true }); };
 
@@ -1516,14 +1462,14 @@
       const qSnap = await getDocs(collection(db, roomsCol)); let joined = false;
       qSnap.forEach(doc => { const r = doc.data(); if(!joined && r.type === 'ranked' && r.state === 'waiting' && Object.keys(r.players).length === 1 && r.host !== currentUser.uid) { joinRankedRoom(r.id); joined = true; } });
       if(!joined) {
-        S.isHost = true; S.roomId = rCode(); S.settings = { rounds: 5, timePerRound: 30, region: 'world' }; S.locations = getLocs('world', 5);
-        const roomData = { id: S.roomId, host: currentUser.uid, state: 'waiting', type: 'ranked', settings: S.settings, round: 1, locations: S.locations, players: { [currentUser.uid]: { name: S.userData.name, avatar: S.userData.avatar, score: 0, hasGuessed: false, guess: null, elo: S.userData.elo, mobile: isMobileDevice } } };
+        S.isHost = true; S.roomId = rCode(); S.settings = { rounds: 99, timePerRound: 30, region: 'world' }; S.locations = getLocs('world', 1); // 1-et generálunk előre, a többit körönként
+        const roomData = { id: S.roomId, host: currentUser.uid, state: 'waiting', type: 'ranked', settings: S.settings, round: 1, locations: S.locations, players: { [currentUser.uid]: { name: S.userData.name, avatar: S.userData.avatar, score: 0, health: RANKED_MAX_HP, hasGuessed: false, guess: null, elo: S.userData.elo, mobile: isMobileDevice } } };
         await setDoc(doc(db, roomsCol, S.roomId), roomData); listenRoom();
       }
     } catch(e) {}
   }
 
-  async function joinRankedRoom(roomId) { S.isHost = false; S.roomId = roomId; const updateData = {}; updateData[`players.${currentUser.uid}`] = { name: S.userData.name, avatar: S.userData.avatar, score: 0, hasGuessed: false, guess: null, elo: S.userData.elo, mobile: isMobileDevice }; await updateDoc(doc(db, roomsCol, roomId), updateData); listenRoom(); }
+  async function joinRankedRoom(roomId) { S.isHost = false; S.roomId = roomId; const updateData = {}; updateData[`players.${currentUser.uid}`] = { name: S.userData.name, avatar: S.userData.avatar, score: 0, health: RANKED_MAX_HP, hasGuessed: false, guess: null, elo: S.userData.elo, mobile: isMobileDevice }; await updateDoc(doc(db, roomsCol, roomId), updateData); listenRoom(); }
 
   function listenRoom() {
     if(unsubscribeRoom) unsubscribeRoom();
@@ -1540,7 +1486,6 @@
           $('lobby-players-list').innerHTML = playersList.map(p => `
             <li class="flex items-center gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
               <img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover"><span class="font-black">${p.name}</span>
-              ${p.mobile ? '<i class="fa-solid fa-mobile-screen text-slate-500 text-xs ml-1" title="Mobil"></i>' : '<i class="fa-solid fa-desktop text-slate-500 text-xs ml-1" title="Asztali"></i>'}
               ${p.uid === data.host ? '<i class="fa-solid fa-crown text-yellow-400 ml-auto text-lg"></i>' : (S.isHost ? `<button class="ml-auto text-red-500 hover:text-red-400 p-2" onclick="kickPlayer('${p.uid}')" title="Kick"><i class="fa-solid fa-user-xmark"></i></button>` : '')}
             </li>`).join('');
           if(!S.isHost) {
@@ -1568,7 +1513,6 @@
 
       if(data.state === 'playing') {
         if(S.mode === 'ranked') updateRankedHUD(playersList);
-        
         if(S.mode === 'ranked' && !S.hasGuessed) {
           const oppGuessed = playersList.some(p => p.uid !== currentUser.uid && p.hasGuessed);
           if(oppGuessed && S.timerSpeed === 1) { S.timerSpeed = 2; toast("Az ellenfél tippelt! Az időd felgyorsult!", true); }
@@ -1579,19 +1523,42 @@
         const allGuessed = playersList.every(p => p.hasGuessed);
         if(allGuessed && playersList.length > 0) {
           const loc = S.locations[S.round - 1]; const updateData = { state: 'results' };
+          
           playersList.forEach(p => {
             const guess = p.guess || {lat: 0, lng: 0};
             const dist = (guess.lat===0) ? 20000 : getDist(loc.lat, loc.lng, guess.lat, guess.lng); const pts = getScore(dist);
             updateData[`players.${p.uid}.lastDist`] = dist; updateData[`players.${p.uid}.lastPts`] = pts;
-            updateData[`players.${p.uid}.score`] = (p.score || 0) + pts;
             updateData[`players.${p.uid}.totalDist`] = (p.totalDist || 0) + dist;
             updateData[`players.${p.uid}.totalGuesses`] = (p.totalGuesses || 0) + 1;
+            updateData[`players.${p.uid}.dmgTaken`] = 0; // Alap reset
           });
+
+          // RANKED ÉLETERŐ LOGIKA
+          if (data.type === 'ranked' && playersList.length === 2) {
+             const p1 = playersList[0]; const p2 = playersList[1];
+             const pts1 = updateData[`players.${p1.uid}.lastPts`];
+             const pts2 = updateData[`players.${p2.uid}.lastPts`];
+             let dmg = Math.abs(pts1 - pts2);
+             
+             let h1 = p1.health ?? RANKED_MAX_HP;
+             let h2 = p2.health ?? RANKED_MAX_HP;
+
+             if (pts1 > pts2) { h2 = Math.max(0, h2 - dmg); updateData[`players.${p2.uid}.dmgTaken`] = dmg; }
+             else if (pts2 > pts1) { h1 = Math.max(0, h1 - dmg); updateData[`players.${p1.uid}.dmgTaken`] = dmg; }
+
+             updateData[`players.${p1.uid}.health`] = h1;
+             updateData[`players.${p2.uid}.health`] = h2;
+
+             if (h1 <= 0 || h2 <= 0) updateData.isKnockout = true;
+          } else {
+             playersList.forEach(p => { updateData[`players.${p.uid}.score`] = (p.score || 0) + updateData[`players.${p.uid}.lastPts`]; });
+          }
+
           await updateDoc(doc(db, roomsCol, S.roomId), updateData);
         }
       }
 
-      if(data.state === 'results') { clearInterval(S.timer); showRoundResults(playersList.map(p => ({uid: p.uid, name: p.name, avatar: p.avatar, guess: p.guess, dist: p.lastDist, pts: p.lastPts}))); }
+      if(data.state === 'results') { clearInterval(S.timer); showRoundResults(playersList.map(p => ({uid: p.uid, name: p.name, avatar: p.avatar, guess: p.guess, dist: p.lastDist, pts: p.lastPts, dmgTaken: p.dmgTaken}))); }
       if(data.state === 'finished') showFinalResults(playersList);
     });
   }
@@ -1608,6 +1575,7 @@
     clearInterval(S.timer);
     if(unsubscribeRoom) { unsubscribeRoom(); unsubscribeRoom = null; }
     document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+    $('global-compass').style.display = 'none';
     
     if(S.roomId && currentUser) {
       if(S.isHost) { try { await deleteDoc(doc(db, roomsCol, S.roomId)); } catch(e){} } 
@@ -1617,10 +1585,8 @@
     S.mode = 'menu'; S.roomId = null; S.activeRoundKey = null; goToMenu();
   };
 
-  // INIT
   performAuth();
 
 </script>
 </body>
 </html>
-
