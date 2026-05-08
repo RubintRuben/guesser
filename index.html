@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>GeoKereső Pro v4.0 - Autentikus Élmény</title>
+  <title>GeoKereső Pro v4.5 - Autentikus Élmény</title>
   
   <!-- Tailwind & Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,16 +16,12 @@
   <!-- Three.js (3D Galaxy Background) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- Google Maps JavaScript API (Street View & Iránytű miatt KÖTELEZŐ) -->
-  <!-- IDE ÍRD A SAJÁT API KULCSODAT A "&key=YOUR_API_KEY" formátumban, ha el akarod tüntetni a vízjelet! -->
-  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry"></script>
-
   <style>
     :root {
       --bg: #050810;
       --panel: rgba(13, 20, 35, 0.85);
       --panel-border: rgba(255, 255, 255, 0.1);
-      --green: #84cc16; /* Kicsit világosabb, igazi geoguessr zöld */
+      --green: #84cc16; 
       --blue: #3b82f6;
       --yellow: #f59e0b;
       --red: #ef4444;
@@ -69,13 +65,12 @@
     
     #bg-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 
-    /* StreetView */
+    /* StreetView Embed */
     #sv-container { position: absolute; inset: 0; z-index: 1; background: #000; }
-    #sv-panorama { width: 100%; height: 100%; pointer-events: auto; transition: opacity 0.5s; }
-    .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 2; pointer-events: none; transition: opacity 0.3s; }
+    #sv-iframe { width: 100%; height: 100%; border: none; pointer-events: auto; transition: opacity 0.5s; }
+    .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; z-index: 2; pointer-events: none; }
     
-    /* Vignette effect for authentic look */
-    .vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px rgba(0,0,0,0.5); z-index: 2; }
+    .vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px rgba(0,0,0,0.4); z-index: 2; }
 
     #sv-return-btn { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 0.5rem 1rem; color: white; font-weight: bold; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
     #sv-return-btn:hover { background: rgba(0,0,0,0.9); }
@@ -85,21 +80,36 @@
     .hud-box { pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     
     /* Ranked Authentic HUD */
-    #ranked-hud { position: absolute; top: 0; left: 0; right: 0; z-index: 15; padding: 1rem 2rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; }
-    .ranked-player-box { width: 300px; display: flex; align-items: center; gap: 1rem; pointer-events: auto; }
-    .score-bar-container { flex: 1; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); height: 28px; border-radius: 6px; position: relative; overflow: hidden; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    .score-bar-fill { height: 100%; background: linear-gradient(180deg, #a3e635, #65a30d); width: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-    .score-text { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-family: 'Arial', sans-serif; font-weight: 900; font-style: italic; font-size: 1.1rem; color: white; text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black; }
-    .player-avatar-wrapper { position: relative; }
-    .player-avatar { w-12; h-12; rounded-full; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); object-fit: cover; }
-    .player-name { font-weight: 900; font-size: 0.8rem; text-shadow: 1px 1px 3px black; text-transform: uppercase; margin-top: 0.2rem; }
+    #ranked-hud { position: absolute; top: 0; left: 0; right: 0; z-index: 15; padding: 1.5rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; width: 100%; max-width: 1400px; margin: 0 auto; }
+    
+    /* Compass Pill at the top */
+    .compass-pill {
+      background: rgba(47, 54, 64, 0.9); backdrop-filter: blur(8px);
+      border-radius: 999px; padding: 0.3rem 1.5rem; font-family: monospace; font-weight: 900;
+      color: white; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      position: absolute; left: 50%; transform: translateX(-50%); top: 1.5rem; pointer-events: auto;
+      border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; letter-spacing: 2px;
+    }
 
-    /* Compass UI */
-    .compass-container { pointer-events: auto; width: 300px; height: 32px; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; position: relative; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3); }
-    .compass-strip { position: absolute; height: 100%; display: flex; align-items: center; font-weight: 900; font-size: 0.85rem; color: rgba(255,255,255,0.8); white-space: nowrap; transition: transform 0.1s linear; }
-    .compass-marker { display: inline-flex; justify-content: center; width: 60px; /* 15 degrees per marker */ }
-    .compass-marker.major { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-size: 1rem; }
-    .compass-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.8); transform: translateX(-50%); box-shadow: 0 0 8px white; z-index: 5; }
+    .ranked-player-box { display: flex; align-items: flex-start; gap: 0.5rem; pointer-events: auto; width: 35%; max-width: 400px; }
+    .ranked-player-box.reverse { flex-direction: row-reverse; }
+
+    /* Custom Health Bars */
+    .health-bar-wrapper { flex: 1; display: flex; flex-col; margin-top: 10px; }
+    
+    .health-bar-bg-left { background: rgba(0,0,0,0.4); height: 26px; width: 100%; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); position: relative; border: 1px solid rgba(255,255,255,0.2); }
+    .health-bar-fill-left { background: linear-gradient(180deg, #a3e635, #65a30d); height: 100%; width: 100%; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); transition: width 0.5s; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center;}
+    
+    .health-bar-bg-right { background: rgba(0,0,0,0.4); height: 26px; width: 100%; clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%); position: relative; border: 1px solid rgba(255,255,255,0.2); }
+    .health-bar-fill-right { background: linear-gradient(180deg, #a3e635, #65a30d); height: 100%; width: 100%; clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%); transition: width 0.5s; float: right; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center;}
+    
+    .health-text { font-family: 'Arial', sans-serif; font-weight: 900; font-style: italic; font-size: 1.1rem; color: white; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8); }
+    
+    .avatar-hex { width: 56px; height: 56px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: #333; display: flex; align-items: center; justify-content: center; padding: 3px; position: relative; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+    .avatar-hex img { width: 100%; height: 100%; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); object-fit: cover; }
+    
+    .player-details { display: flex; flex-direction: column; width: 100%; }
+    .player-name { font-weight: 900; font-size: 0.75rem; text-shadow: 1px 1px 3px black; text-transform: uppercase; color: white; margin-top: 4px; }
 
     .timer-alert { animation: pulse-red 0.5s infinite alternate; }
     @keyframes pulse-red { from { color: white; text-shadow: none; } to { color: #ef4444; text-shadow: 0 0 10px #ef4444; } }
@@ -120,9 +130,9 @@
       #map-wrapper { width: calc(100vw - 1.5rem); height: 200px; bottom: 0.75rem; right: 0.75rem; opacity: 0.9; }
       #map-wrapper.expanded { height: 60vh; }
       #hud { padding: 0.75rem; }
-      #ranked-hud { padding: 0.5rem; flex-direction: column; gap: 0.5rem; align-items: center; }
-      .ranked-player-box { width: 100%; justify-content: space-between; }
-      .ranked-player-box.reverse { flex-direction: row-reverse; }
+      #ranked-hud { padding: 0.5rem; flex-direction: column; gap: 2rem; align-items: center; }
+      .ranked-player-box { width: 100%; }
+      .compass-pill { top: auto; bottom: -30px; }
     }
     #guess-map { flex: 1; width: 100%; cursor: crosshair; position: relative; }
     
@@ -183,7 +193,7 @@
     .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #8b5cf6); height: 100%; border-radius: 4px; transition: width 1s ease-out; }
 
     /* Admin scroll list */
-    .admin-list { max-height: 250px; overflow-y: auto; padding-right: 10px; }
+    .admin-list { max-height: 350px; overflow-y: auto; padding-right: 10px; }
   </style>
 </head>
 <body>
@@ -327,9 +337,30 @@
     
     <div class="grid md:grid-cols-2 gap-6 flex-1 overflow-hidden">
       <!-- Users Column -->
-      <div class="bg-slate-900/50 rounded-xl border border-white/5 flex flex-col overflow-hidden">
+      <div class="bg-slate-900/50 rounded-xl border border-white/5 flex flex-col overflow-hidden relative">
         <div class="p-3 bg-black/40 border-b border-white/10 text-xs font-black text-slate-400 uppercase tracking-widest">Játékosok Kezelése</div>
-        <div class="admin-list flex-1" id="admin-users-list"></div>
+        
+        <!-- Lista nézet -->
+        <div class="admin-list flex-1" id="admin-users-list-container"></div>
+
+        <!-- Szerkesztő nézet -->
+        <div id="admin-user-edit-container" class="hidden absolute inset-0 bg-slate-900 z-10 flex flex-col p-4">
+          <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+            <h3 class="font-black text-blue-400" id="admin-edit-name">Felhasználó Szerkesztése</h3>
+            <button class="text-slate-400 hover:text-white" onclick="adminBackToList()"><i class="fa-solid fa-arrow-left"></i> Vissza</button>
+          </div>
+          <input type="hidden" id="admin-edit-uid">
+          <div class="space-y-4 flex-1 overflow-y-auto">
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Elo Pontszám</label>
+              <input type="number" id="admin-edit-elo" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black focus:border-blue-500 outline-none"></div>
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Összes XP (Pont)</label>
+              <input type="number" id="admin-edit-score" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black focus:border-purple-500 outline-none"></div>
+            <div><label class="text-xs font-bold text-slate-400 uppercase">Játszott Meccsek</label>
+              <input type="number" id="admin-edit-games" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
+          </div>
+          <button class="btn btn-success w-full mt-4" onclick="adminSaveUser()">Módosítások Mentése</button>
+        </div>
+
       </div>
       
       <!-- Active Rooms Column -->
@@ -369,7 +400,7 @@
   </div>
 </div>
 
-<!-- User Profile Modal -->
+<!-- User Profile Modal (FULL RESTORE) -->
 <div id="overlay-profile" class="overlay" style="z-index: 70;">
   <div class="glass p-8 rounded-[2.5rem] max-w-md w-full anim-pop relative overflow-hidden">
     <button class="absolute top-4 right-4 text-slate-400 hover:text-white bg-black/20 rounded-full w-8 h-8 flex items-center justify-center transition z-20" onclick="closeOverlay('overlay-profile')"><i class="fa-solid fa-xmark"></i></button>
@@ -553,33 +584,42 @@
       <div class="w-16 h-16 border-4 border-white/10 border-t-green-400 rounded-full animate-spin"></div>
       <p class="mt-6 font-black tracking-[0.2em] text-slate-400 text-xs uppercase">Helyszín betöltése...</p>
     </div>
-    <div id="sv-panorama"></div>
+    <!-- VISSZAÁLLÍTVA AZ IFRAME EMBED API (Ingyenes, forgatható, mozgatható) -->
+    <iframe id="sv-iframe" src="" allowfullscreen></iframe>
     <div class="vignette"></div>
   </div>
 
   <!-- AUTHENTIC RANKED HUD (Shows only in Ranked) -->
   <div id="ranked-hud">
-    <div class="ranked-player-box" id="rh-player-me">
-      <div class="player-avatar-wrapper"><img src="" class="player-avatar" id="rh-avatar-me"></div>
-      <div class="flex-1">
-        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-me" style="width: 100%;"></div><div class="score-text" id="rh-score-me">0</div></div>
-        <div class="player-name text-left" id="rh-name-me">Játékos 1</div>
-      </div>
-    </div>
-    
-    <div class="compass-container">
-      <div class="compass-strip" id="compass-strip">
-        <!-- Generált markerek jönnek ide JS-ből -->
-      </div>
-      <div class="compass-center-line"></div>
+    <!-- Iránytű Dísz UI (Középre rögzítve) -->
+    <div class="compass-pill">
+      <span class="opacity-50">SW | |</span> W <span class="opacity-50">| | NW</span>
     </div>
 
-    <div class="ranked-player-box reverse" id="rh-player-opp">
-      <div class="flex-1">
-        <div class="score-bar-container"><div class="score-bar-fill" id="rh-bar-opp" style="width: 100%;"></div><div class="score-text" id="rh-score-opp">0</div></div>
-        <div class="player-name text-right" id="rh-name-opp">Várakozás...</div>
+    <!-- Bal oldali játékos (Én) -->
+    <div class="ranked-player-box" id="rh-player-me">
+      <div class="avatar-hex"><img src="" id="rh-avatar-me"></div>
+      <div class="player-details">
+        <div class="player-name" id="rh-name-me">Játékos 1</div>
+        <div class="health-bar-wrapper">
+          <div class="health-bar-bg-left">
+            <div class="health-bar-fill-left" id="rh-bar-me"><span class="health-text" id="rh-score-me">0</span></div>
+          </div>
+        </div>
       </div>
-      <div class="player-avatar-wrapper"><img src="" class="player-avatar" id="rh-avatar-opp"></div>
+    </div>
+
+    <!-- Jobb oldali játékos (Ellenfél) -->
+    <div class="ranked-player-box reverse" id="rh-player-opp">
+      <div class="avatar-hex"><img src="" id="rh-avatar-opp"></div>
+      <div class="player-details items-end text-right">
+        <div class="player-name" id="rh-name-opp">Várakozás...</div>
+        <div class="health-bar-wrapper w-full">
+          <div class="health-bar-bg-right">
+            <div class="health-bar-fill-right" id="rh-bar-opp"><span class="health-text" id="rh-score-opp">0</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -822,7 +862,7 @@
 
   // --- ADMIN PANEL LOGIC ---
   let secretBuffer = '';
-  const adminSecret = 'admin'; // Egyszerűsítve az eléréshez
+  const adminSecret = 'admin'; 
   
   window.addEventListener('keydown', (e) => {
     secretBuffer += e.key.toLowerCase();
@@ -836,17 +876,50 @@
     let usersHTML = '';
     allProfilesCache.forEach(d => {
       usersHTML += `
-        <div class="grid grid-cols-4 gap-2 p-3 items-center bg-black/20 border-b border-white/5 text-sm hover:bg-black/40 transition">
-          <div class="col-span-2 flex items-center gap-3 font-bold text-white">
-            <img src="${d.avatar}" class="w-6 h-6 rounded-full border border-white/10 object-cover">
-            <span class="truncate">${d.name}</span>
+        <div class="flex justify-between items-center p-3 bg-black/20 border-b border-white/5 text-sm hover:bg-black/40 transition cursor-pointer" onclick="adminEditUser('${d.uid}')">
+          <div class="flex items-center gap-3 font-bold text-white">
+            <img src="${d.avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover">
+            <span>${d.name} <span class="text-xs text-blue-400 ml-2">(${d.elo} Elo)</span></span>
           </div>
-          <div><input type="number" class="w-full bg-slate-900 border border-white/10 rounded px-1 text-blue-400 font-black" value="${d.elo}" onchange="saveUserStat('${d.uid}', 'elo', this.value)"></div>
-          <div class="text-right"><button class="text-red-500 hover:text-red-400" onclick="wipeUser('${d.uid}')"><i class="fa-solid fa-trash"></i></button></div>
+          <div class="text-right">
+            <button class="text-slate-400 hover:text-white px-2 py-1 bg-black/40 rounded"><i class="fa-solid fa-pen"></i> Szerkesztés</button>
+          </div>
         </div>
       `;
     });
-    $('admin-users-list').innerHTML = usersHTML || '<div class="p-4 text-center text-slate-500">Nincsenek adatok</div>';
+    $('admin-users-list-container').innerHTML = usersHTML || '<div class="p-4 text-center text-slate-500">Nincsenek adatok</div>';
+  };
+
+  // Új admin felhasználó szerkesztő rész
+  window.adminEditUser = (uid) => {
+    const p = allProfilesCache.find(x => x.uid === uid);
+    if(!p) return;
+    $('admin-edit-uid').value = uid;
+    $('admin-edit-name').innerText = p.name + " szerkesztése";
+    $('admin-edit-elo').value = p.elo || 0;
+    $('admin-edit-score').value = p.totalScore || 0;
+    $('admin-edit-games').value = p.gamesPlayed || 0;
+    
+    $('admin-users-list-container').classList.add('hidden');
+    $('admin-user-edit-container').classList.remove('hidden');
+  };
+
+  window.adminBackToList = () => {
+    $('admin-user-edit-container').classList.add('hidden');
+    $('admin-users-list-container').classList.remove('hidden');
+  };
+
+  window.adminSaveUser = async () => {
+    const uid = $('admin-edit-uid').value;
+    const elo = Number($('admin-edit-elo').value);
+    const score = Number($('admin-edit-score').value);
+    const games = Number($('admin-edit-games').value);
+    
+    try { 
+      await updateDoc(doc(db, lbCol, uid), { elo: elo, totalScore: score, gamesPlayed: games }); 
+      toast("Sikeres mentés!"); 
+      window.adminBackToList();
+    } catch(e) { toast("Hiba a mentésnél!", true); }
   };
 
   window.fetchAdminRooms = async () => {
@@ -881,15 +954,6 @@
     }
   };
 
-  window.saveUserStat = async (uid, field, val) => {
-    if(isNaN(val)) return;
-    try { await updateDoc(doc(db, lbCol, uid), { [field]: Number(val) }); toast("Sikeres módosítás!"); } catch(e) { toast("Hiba a mentésnél!", true); }
-  };
-  window.wipeUser = async (uid) => {
-    if(confirm('Biztosan törlöd ezt a felhasználót?')) {
-      await deleteDoc(doc(db, lbCol, uid)); toast("Felhasználó törölve.");
-    }
-  };
 
   // --- LOCATIONS DB ---
   const LOCS = {
@@ -943,67 +1007,6 @@
     return {n:'Mester', c:'text-purple-400 bg-purple-950/50 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]'};
   }
 
-  // --- COMPASS UI BUILDER ---
-  function buildCompass() {
-    const strip = $('compass-strip');
-    const directions = ['É', '', '', 'K', '', '', 'D', '', '', 'Ny', '', ''];
-    // Ismételjük meg a dizájnt párszor a folyamatos görgetéshez
-    let html = '';
-    for(let i=0; i<4; i++) {
-      directions.forEach(dir => {
-        html += `<div class="compass-marker ${dir ? 'major' : ''}">${dir || '|'}</div>`;
-      });
-    }
-    strip.innerHTML = html;
-  }
-  buildCompass();
-
-  function updateCompassUI(heading) {
-    const strip = $('compass-strip');
-    // Egy teljes kör (360 fok) a mi beállításunkkal 12 marker * 60px = 720px
-    // 1 fok = 2 pixel
-    // Kezdeti eltolás szükséges, hogy középen legyen az Észak.
-    let pxOffset = (heading * 2) % 720; 
-    // Mivel 4-szer ismételtük, berakunk egy offsetet, hogy sose fussunk le a széléről.
-    strip.style.transform = `translateX(calc(-50% - ${pxOffset}px + 360px))`;
-  }
-
-  // --- GOOGLE MAPS STREET VIEW INIT ---
-  let svPanorama = null;
-  function initStreetView(lat, lng) {
-    if(typeof google === 'undefined' || !google.maps) {
-       toast("Várakozás a Maps betöltésére...", true);
-       setTimeout(() => initStreetView(lat, lng), 1000);
-       return;
-    }
-    const pos = {lat: lat, lng: lng};
-    if(!svPanorama) {
-      svPanorama = new google.maps.StreetViewPanorama($('sv-panorama'), {
-        position: pos,
-        pov: {heading: 0, pitch: 0},
-        zoom: 1,
-        addressControl: false, // Utcanevek rejtése (Ne lehessen csalni)
-        showRoadLabels: false,
-        fullscreenControl: false,
-        zoomControl: true,
-        panControl: true,
-        motionTracking: false,
-        motionTrackingControl: false
-      });
-      // Iránytű frissítése mozgáskor
-      svPanorama.addListener('pov_changed', () => {
-        updateCompassUI(svPanorama.getPov().heading);
-      });
-    } else {
-      svPanorama.setPosition(pos);
-      svPanorama.setPov({heading: 0, pitch: 0});
-      updateCompassUI(0);
-    }
-    
-    // Töltés animáció elrejtése
-    setTimeout(() => { $('sv-loader').style.opacity = '0'; }, 1000);
-  }
-
   // --- AUTH & RECONNECTION ---
   async function performAuth() {
     try {
@@ -1033,7 +1036,7 @@
       const myRemoteProfile = players.find(p => p.uid === currentUser?.uid);
       if(myRemoteProfile && S.userData.isGoogle) S.userData = myRemoteProfile;
       if(S.mode === 'menu') updateLeaderboardUI();
-      if($('overlay-admin').style.display === 'flex') window.renderAdminData();
+      if($('overlay-admin').style.display === 'flex' && !$('admin-users-list-container').classList.contains('hidden')) window.renderAdminData();
     });
   }
 
@@ -1132,8 +1135,43 @@
   }
 
   window.openFullLeaderboard = () => { openOverlay('overlay-leaderboard'); };
+  
+  // (TELJESEN HELREÁLLÍTOTT PROFIL LOGIKA)
   window.showMyProfile = () => { if(S.userData.isGoogle) showProfile(currentUser.uid); else toast("Jelentkezz be a teljes profilhoz!"); };
-  window.showProfile = (uid) => { /* Original Logic intact */ }; // A profil kód ugyanaz
+  window.showProfile = (uid) => {
+    const p = allProfilesCache.find(x => x.uid === uid) || (uid === currentUser?.uid ? S.userData : null);
+    if(!p) return;
+    $('prof-avatar').src = p.avatar; $('prof-name').innerText = p.name; $('prof-elo').innerText = p.elo;
+    
+    const isOnline = (Date.now() - (p.lastSeen||0)) < 120000 || uid === currentUser?.uid;
+    $('prof-status').className = `absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 border-slate-900 status-dot ${isOnline ? 'status-online' : 'status-offline'}`;
+
+    const r = getRankObj(p.elo);
+    $('prof-rank-badge').innerText = r.n; $('prof-rank-badge').className = `text-xs font-black px-3 py-1 rounded-full border border-slate-700 uppercase tracking-widest text-white shadow-lg ${r.c.split(' ')[1]}`;
+    
+    const lvl = getLevel(p.totalScore);
+    const xpStart = getXpForPrevLevel(lvl);
+    const xpNext = getXpForNextLevel(lvl);
+    const xpCurrent = (p.totalScore || 0);
+    const pct = Math.max(0, Math.min(100, ((xpCurrent - xpStart) / (xpNext - xpStart)) * 100));
+
+    $('prof-level-txt').innerText = `Szint ${lvl}`;
+    $('prof-xp').innerText = xpCurrent;
+    setTimeout(() => { $('prof-xp-bar').style.width = pct + '%'; }, 100);
+
+    $('prof-games').innerText = p.gamesPlayed || 0;
+    const w = p.rankedWins || 0; const l = p.rankedLosses || 0; const totalRanked = w+l;
+    $('prof-wins').innerText = w; $('prof-losses').innerText = l;
+    $('prof-winrate').innerText = totalRanked > 0 ? Math.round((w/totalRanked)*100)+'%' : '0%';
+    
+    const avgD = p.totalGuesses > 0 ? (p.totalDist / p.totalGuesses) : 0;
+    $('prof-avgdist').innerText = fmtDist(avgD);
+    
+    const hrs = Math.floor((p.playTimeSeconds || 0) / 3600);
+    $('prof-playtime').innerText = hrs + ' óra';
+    
+    openOverlay('overlay-profile');
+  };
 
   // --- MENU ACTIONS ---
   window.menuAction = (mode) => {
@@ -1147,9 +1185,12 @@
     }
   };
 
-  // --- MAP LOGIC (LEAFLET WITH GOOGLE MAPS TILES) ---
+  // --- MAP LOGIC (VISSZAÁLLÍTVA A SZÍNES, STABIL MAP-RA) ---
   let guessMap, resultMap, guessMarker, resultLayers = [];
-  const TILE_STREET = 'https://mt1.google.com/vt/lyrs=m&hl=hu&x={x}&y={y}&z={z}'; const TILE_SAT = 'https://mt1.google.com/vt/lyrs=y&hl=hu&x={x}&y={y}&z={z}';
+  
+  // Színes, alap OpenStreetMap és gyönyörű Google Satelite az élményért!
+  const TILE_STREET = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'; 
+  const TILE_SAT = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   let currentTileLayer = null;
 
   function initMap() {
@@ -1171,7 +1212,7 @@
   }
 
   window.toggleMapType = () => { S.mapSatellite = !S.mapSatellite; setMapTiles(); $('btn-map-toggle').innerHTML = S.mapSatellite ? '<i class="fa-solid fa-map mr-1"></i>Utcai' : '<i class="fa-solid fa-satellite mr-1"></i>Műhold'; };
-  function setMapTiles() { if(currentTileLayer) guessMap.removeLayer(currentTileLayer); currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 20 }).addTo(guessMap); }
+  function setMapTiles() { if(currentTileLayer) guessMap.removeLayer(currentTileLayer); currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 18 }).addTo(guessMap); }
   window.resetMapView = () => { if(guessMap) guessMap.setView([20,0], 2); };
 
   // --- GAME LOGIC ---
@@ -1183,14 +1224,14 @@
     closeOverlay('overlay-solo'); showScr('screen-game'); S.playTimeStart = Date.now(); playRound();
   };
 
+  // VISSZAÁLLÍTVA AZ EMBED API BETÖLTÉSRE
   window.resetStreetView = () => {
     if (S.locations && S.locations[S.round - 1]) {
       const loc = S.locations[S.round - 1];
-      if(svPanorama) { svPanorama.setPosition({lat: loc.lat, lng: loc.lng}); svPanorama.setPov({heading: 0, pitch: 0}); updateCompassUI(0); }
+      $('sv-iframe').src = `https://maps.google.com/maps?q=&layer=c&cbll=${loc.lat},${loc.lng}&output=svembed`;
     }
   };
 
-  // Átírjuk a UI frissítőket Rankedhez
   function updateRankedHUD(playersList) {
     if(S.mode !== 'ranked') return;
     const maxScore = S.settings.rounds * 5000;
@@ -1219,12 +1260,13 @@
     initMap();
 
     const loc = S.locations[S.round - 1];
-    $('sv-loader').style.opacity = '1';
+    $('sv-loader').style.opacity = '1'; $('sv-iframe').style.opacity = '0';
+    resetStreetView();
     
-    // JS API Init helyett iframe
-    initStreetView(loc.lat, loc.lng);
-    
-    if(!isResume) startTimer();
+    $('sv-iframe').onload = () => {
+      $('sv-loader').style.opacity = '0'; $('sv-iframe').style.opacity = '1'; 
+      if(!isResume) startTimer();
+    };
 
     $('hud-round').innerText = S.round; $('hud-score').innerText = S.score;
 
@@ -1378,7 +1420,7 @@
   }
 
   // --- MULTIPLAYER ---
-  window.createParty = async () => { /* Original Intact */
+  window.createParty = async () => { 
     if(!currentUser) { toast("A folytatáshoz bejelentkezés szükséges!", true); return; }
     S.mode = 'party'; S.isHost = true; S.roomId = rCode(); S.round = 1;
     $('party-select').style.display = 'none'; $('party-lobby').style.display = 'grid';
@@ -1390,7 +1432,7 @@
     } catch(e) { console.error(e); toast("Hiba a szoba létrehozásakor!", true); }
   };
   
-  window.joinParty = async () => { /* Original Intact */
+  window.joinParty = async () => { 
     if(!currentUser) return; const code = $('input-party-code').value.trim().toUpperCase(); if(code.length < 2) return;
     try {
       const snap = await getDoc(doc(db, roomsCol, code)); if(!snap.exists() || snap.data().state !== 'waiting') { toast("Érvénytelen vagy elindult szoba!", true); return; }
