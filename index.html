@@ -79,7 +79,12 @@
       transform-origin: center;
     }
     .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050810; z-index: 2; pointer-events: none; transition: opacity 0.4s ease-out; }
+    
+    /* Screen Effects */
     .vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 150px rgba(0,0,0,0.5); z-index: 2; }
+    .danger-vignette { box-shadow: inset 0 0 150px rgba(239,68,68,0) !important; transition: box-shadow 0.3s; }
+    .danger-vignette.active { box-shadow: inset 0 0 150px rgba(239,68,68,0.7) !important; animation: pulse-danger 1s infinite alternate; }
+    @keyframes pulse-danger { from { box-shadow: inset 0 0 100px rgba(239,68,68,0.4) !important; } to { box-shadow: inset 0 0 200px rgba(239,68,68,0.8) !important; } }
 
     #sv-return-btn { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 0.5rem 1rem; color: white; font-weight: bold; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
     #sv-return-btn:hover { background: rgba(0,0,0,0.9); transform: translateX(-50%) scale(1.05); }
@@ -99,6 +104,20 @@
 
     .timer-alert { animation: pulse-red 0.5s infinite alternate; }
     @keyframes pulse-red { from { color: white; text-shadow: none; } to { color: #ef4444; text-shadow: 0 0 10px #ef4444; transform: scale(1.1); } }
+
+    /* Interactive Compass UI */
+    .compass-container { position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); pointer-events: auto; width: 300px; height: 36px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.4); z-index: 20; cursor: grab; transition: border-color 0.3s; }
+    .compass-container:hover { border-color: rgba(59,130,246,0.5); }
+    .compass-container:active { cursor: grabbing; border-color: rgba(59,130,246,0.8); }
+    .compass-strip { position: absolute; height: 100%; display: flex; align-items: center; font-weight: 900; font-size: 0.85rem; color: rgba(255,255,255,0.8); white-space: nowrap; pointer-events: none; }
+    .compass-marker { display: inline-flex; justify-content: center; width: 60px; pointer-events: none; }
+    .compass-marker.major { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-size: 1.1rem; }
+    .compass-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.9); transform: translateX(-50%); box-shadow: 0 0 10px white, 0 0 5px #3b82f6; z-index: 5; pointer-events: none; }
+    .compass-hint { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; pointer-events: none; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
+    .compass-container:hover .compass-hint { opacity: 1; }
+
+    /* Big Timer Display */
+    #big-timer-display { font-size: 15rem; top: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.2s, transform 0.2s; text-shadow: 0 0 50px rgba(239,68,68,0.8); }
 
     /* Map Wrapper */
     #map-wrapper {
@@ -120,6 +139,7 @@
       #ranked-hud { flex-direction: column; gap: 0.5rem; align-items: center; }
       .ranked-player-box { width: 100%; justify-content: space-between; }
       .ranked-player-box.reverse { flex-direction: row-reverse; }
+      #big-timer-display { font-size: 8rem; }
     }
     #guess-map { flex: 1; width: 100%; cursor: crosshair; position: relative; }
     
@@ -139,32 +159,41 @@
     #map-wrapper:hover #btn-guess, #map-wrapper.expanded #btn-guess { display: block; }
     @media(max-width: 768px) { #btn-guess { display: block; padding: 0.7rem 0; font-size: 1rem; } }
 
-    /* Custom Pins */
-    .pin { width: 28px; height: 28px; border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 6px 18px rgba(0,0,0,0.6); position: relative; transition: transform 0.3s; }
-    .pin:hover { transform: rotate(-45deg) scale(1.2); }
-    .pin::after { content: ""; position: absolute; width: 8px; height: 8px; background: #fff; border-radius: 50%; top: 7px; left: 7px; }
-    .pin.real { background: var(--green); width: 34px; height: 34px; top:-5px; left:-3px; z-index: 100; animation: bounce-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .pin.real::after { top: 10px; left: 10px; }
-    .pin.me { background: var(--blue); }
-    .pin.other { background: var(--purple); }
+    /* Custom Avatar Pins */
+    .avatar-pin { position: relative; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+    .avatar-pin:hover { transform: scale(1.2); z-index: 1000 !important; }
+    .avatar-pin img { width: 40px; height: 40px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; z-index: 10; background: #1e293b; object-fit: cover; }
+    .avatar-pin::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid white; z-index: 5; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
+    
+    .avatar-pin.me img { border-color: #3b82f6; }
+    .avatar-pin.me::after { border-top-color: #3b82f6; }
+    .avatar-pin.other img { border-color: #a855f7; }
+    .avatar-pin.other::after { border-top-color: #a855f7; }
+    .avatar-pin.real img { border-color: #84cc16; width: 48px; height: 48px; border-width: 4px; animation: bounce-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .avatar-pin.real::after { border-top-color: #84cc16; bottom: -10px; border-left-width: 10px; border-right-width: 10px; border-top-width: 14px; }
+
+    /* Custom Tooltip */
+    .leaflet-tooltip { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 8px; padding: 4px 8px; font-weight: 800; font-family: 'Inter', sans-serif; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 0.8rem; }
+    .leaflet-tooltip-top:before { border-top-color: rgba(255,255,255,0.5); }
 
     /* Modals / Overlays */
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 50; display: none; align-items: center; justify-content: center; padding: 1rem; }
     
     .timer-bar-wrap { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: rgba(0,0,0,0.5); z-index: 15; }
-    .timer-bar { height: 100%; background: var(--green); width: 100%; transition: width 0.5s linear, background-color 0.3s; }
+    .timer-bar { height: 100%; background: var(--green); width: 100%; transition: width 0.1s linear, background-color 0.3s; }
 
     #toast { position: fixed; top: 1.5rem; left: 50%; transform: translate(-50%, -150%); z-index: 9999; padding: 0.8rem 1.5rem; border-radius: 999px; background: rgba(15,23,42,0.95); border: 1px solid var(--panel-border); font-weight: 800; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.6); text-align: center; }
 
     .anim-pop { animation: pop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     @keyframes pop { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
     @keyframes bounce-small { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    @keyframes bounce-drop { 0% { transform: translateY(-30px) rotate(-45deg) scale(0); opacity: 0; } 100% { transform: translateY(0) rotate(-45deg) scale(1); opacity: 1; } }
+    @keyframes bounce-drop { 0% { transform: translateY(-30px) scale(0); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
     
     /* New Animations */
     @keyframes floatUpOut { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.5); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     @keyframes pulse-green { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 20px #84cc16; } }
+    @keyframes pump { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } 100% { transform: translate(-50%, -50%) scale(1); } }
 
     /* Custom Inputs */
     input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
@@ -187,7 +216,7 @@
     .xp-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
     .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #8b5cf6); height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-    .admin-list { max-height: 250px; overflow-y: auto; padding-right: 10px; }
+    .admin-list { overflow-y: auto; padding-right: 10px; }
 
     /* Map in Results (Flex-1 bugfix) */
     #actual-res-map { min-height: 350px; width: 100%; height: 100%; border-radius: 1rem; z-index: 1; }
@@ -249,7 +278,7 @@
       </div>
       
       <div class="flex items-center gap-6">
-        <div class="text-center bg-slate-900/50 px-4 py-2 rounded-xl border border-white/5 shadow-inner hover:bg-slate-800/50 transition">
+        <div class="text-center bg-slate-900/50 px-4 py-2 rounded-xl border border-white/5 shadow-inner hover:bg-slate-800/50 transition cursor-pointer" onclick="openOnlinePlayers()">
           <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Jelenleg Online</div>
           <div class="font-black text-green-400 text-lg flex items-center justify-center gap-2">
             <i class="fa-solid fa-users"></i> <span id="online-count">1</span> játékos
@@ -324,6 +353,19 @@
 
 <!-- ================== MODALS / OVERLAYS ================== -->
 
+<!-- Online Players List Modal -->
+<div id="overlay-online" class="overlay" style="z-index: 65;">
+  <div class="glass p-6 md:p-8 rounded-[2.5rem] max-w-md w-full anim-pop max-h-[80vh] flex flex-col relative overflow-hidden border border-green-500/30">
+    <div class="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+      <h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-users text-green-400"></i> Online Játékosok</h2>
+      <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-8 h-8 flex items-center justify-center transition hover:bg-white/10 hover:scale-110" onclick="closeOverlay('overlay-online')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar" id="online-players-list">
+       <div class="text-center text-slate-500 text-sm py-4">Betöltés...</div>
+    </div>
+  </div>
+</div>
+
 <!-- Admin Panel -->
 <div id="overlay-admin" class="overlay" style="z-index: 9999;">
   <div class="glass p-6 md:p-8 rounded-[2rem] max-w-5xl w-full anim-pop h-[80vh] flex flex-col border border-red-500/50">
@@ -336,9 +378,9 @@
       <!-- Users Column -->
       <div class="bg-slate-900/50 rounded-xl border border-white/5 flex flex-col overflow-hidden relative">
         <div class="p-3 bg-black/40 border-b border-white/10 text-xs font-black text-slate-400 uppercase tracking-widest shrink-0">Játékosok Kezelése</div>
-        <div class="admin-list flex-1 overflow-y-auto" id="admin-users-list-container"></div>
+        <div class="admin-list flex-1" id="admin-users-list-container"></div>
 
-        <div id="admin-user-edit-container" class="hidden absolute inset-0 bg-slate-900 z-10 flex flex-col p-4 overflow-y-auto">
+        <div id="admin-user-edit-container" class="hidden absolute inset-0 bg-slate-900 z-10 flex flex-col p-4 overflow-y-auto custom-scrollbar">
           <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2 shrink-0">
             <h3 class="font-black text-blue-400" id="admin-edit-name">Felhasznalo szerkesztese</h3>
             <button class="text-slate-400 hover:text-white" onclick="adminBackToList()"><i class="fa-solid fa-arrow-left"></i> Vissza</button>
@@ -366,7 +408,7 @@
             <div><label class="text-xs font-bold text-slate-400 uppercase">Jatekido masodpercben</label>
               <input type="number" id="admin-edit-playtime" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-black outline-none"></div>
             
-            <div class="mt-4 border-t border-red-500/30 pt-4">
+            <div class="mt-4 border-t border-red-500/30 pt-4 pb-4">
               <button class="btn btn-danger w-full py-3" onclick="adminWipeUser()"><i class="fa-solid fa-skull"></i> Fiók adatainak törlése (Wipe)</button>
             </div>
           </div>
@@ -380,7 +422,7 @@
           <span>Aktív Szobák / Meccsek</span>
           <button class="text-blue-400 hover:text-blue-300" onclick="fetchAdminRooms()"><i class="fa-solid fa-rotate-right"></i> Frissít</button>
         </div>
-        <div class="admin-list flex-1 overflow-y-auto" id="admin-rooms-list">
+        <div class="admin-list flex-1" id="admin-rooms-list">
            <div class="p-4 text-center text-slate-500 text-sm">Betöltés...</div>
         </div>
       </div>
@@ -407,7 +449,7 @@
       <h2 class="text-3xl font-black flex items-center gap-3"><i class="fa-solid fa-earth-americas text-blue-400"></i> Világranglista</h2>
       <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-10 h-10 flex items-center justify-center transition hover:bg-white/10 hover:scale-110" onclick="closeOverlay('overlay-leaderboard')"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-3" id="full-leaderboard-list"></div>
+    <div class="flex-1 overflow-y-auto pr-2 relative z-10 space-y-3 custom-scrollbar" id="full-leaderboard-list"></div>
   </div>
 </div>
 
@@ -474,7 +516,7 @@
 
 <!-- Party -->
 <div id="overlay-party" class="overlay">
-  <div class="glass p-6 md:p-8 rounded-[2.5rem] max-w-4xl w-full anim-pop max-h-[95vh] overflow-y-auto">
+  <div class="glass p-6 md:p-8 rounded-[2.5rem] max-w-4xl w-full anim-pop max-h-[95vh] overflow-y-auto custom-scrollbar">
     <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
       <h2 class="text-2xl md:text-3xl font-black flex items-center gap-3"><i class="fa-solid fa-users-rays text-purple-400"></i> Party Szoba</h2>
       <button class="text-slate-400 hover:text-white bg-white/5 rounded-full w-10 h-10 flex items-center justify-center transition hover:scale-110 hover:bg-white/10" onclick="closeOverlay('overlay-party')"><i class="fa-solid fa-xmark"></i></button>
@@ -602,8 +644,20 @@
       <p class="mt-6 font-black tracking-[0.2em] text-slate-400 text-xs uppercase">Helyszín betöltése...</p>
     </div>
     <iframe id="sv-iframe" src="" allowfullscreen></iframe>
-    <div class="vignette"></div>
+    <!-- Piros vészjelző vignette az utolsó 10 másodpercben -->
+    <div class="vignette danger-vignette" id="danger-overlay"></div>
   </div>
+
+  <!-- INTERACTIVE COMPASS -->
+  <div class="compass-container group" title="Húzd az irányításhoz!">
+    <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none"></div>
+    <div class="compass-strip" id="compass-strip"></div>
+    <div class="compass-center-line"></div>
+    <div class="compass-hint">Tájoló - Húzd manuálisan!</div>
+  </div>
+
+  <!-- BIG TIMER DISPLAY (LAST 10 SECONDS) -->
+  <div id="big-timer-display" class="absolute text-center pointer-events-none font-black text-red-500">10</div>
 
   <!-- AUTHENTIC RANKED HUD (Shows only in Ranked) -->
   <div id="ranked-hud">
@@ -759,6 +813,7 @@
     settings: { rounds: 5, timePerRound: 60, region: 'world' },
     timer: null, timeLeft: 0, timerSpeed: 1, hasGuessed: false, mapSatellite: false, activeRoundKey: null,
     playTimeStart: 0, presenceInterval: null,
+    virtualElapsed: 0, lastTickTime: 0, lastTickSec: 0, roundStartTime: 0,
     userData: { 
       name: 'Vendég', elo: 0, avatar: '', isGoogle: false, 
       gamesPlayed: 0, rankedWins: 0, rankedLosses: 0, totalDist: 0, totalGuesses: 0, totalScore: 0, playTimeSeconds: 0, lastSeen: 0 
@@ -766,6 +821,28 @@
   };
 
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  // --- HANGOK (Web Audio API Synthesizer) ---
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let actx = null;
+  function initAudio() { if(!actx) { actx = new AudioContext(); } if(actx.state === 'suspended') actx.resume(); }
+  function playTone(freq, type, dur, vol, slideFreq=null) {
+    if(!actx) initAudio(); if(!actx) return;
+    const osc = actx.createOscillator(); const gain = actx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, actx.currentTime);
+    if(slideFreq) osc.frequency.exponentialRampToValueAtTime(slideFreq, actx.currentTime + dur);
+    gain.gain.setValueAtTime(vol, actx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + dur);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(); osc.stop(actx.currentTime + dur);
+  }
+  const SFX = {
+    tick: () => playTone(800, 'sine', 0.1, 0.3),
+    start: () => { playTone(440, 'sine', 0.5, 0.3); setTimeout(()=>playTone(880, 'sine', 0.5, 0.3), 200); },
+    guess: () => playTone(300, 'triangle', 0.2, 0.6, 100),
+    result: () => playTone(600, 'square', 0.8, 0.2),
+    damage: () => playTone(100, 'sawtooth', 0.6, 0.8, 20)
+  };
+  window.addEventListener('click', initAudio, { once: true }); // Unlock audio context on first click
 
   function getLevel(xp) { return Math.floor(Math.sqrt((xp||0) / 1000)) + 1; }
   function getXpForNextLevel(lvl) { return Math.pow(lvl, 2) * 1000; }
@@ -860,7 +937,6 @@
   };
   window.adminBackToList = () => { $('admin-user-edit-container').classList.add('hidden'); $('admin-users-list-container').classList.remove('hidden'); };
   
-  // WIPE FUNCTION ADDED
   window.adminWipeUser = async () => {
     const uid = $('admin-edit-uid').value;
     if(!uid) return;
@@ -986,6 +1062,36 @@
     return {n:'Mester', c:'text-purple-400 bg-purple-950/50 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]'};
   }
 
+  // --- INTERACTIVE COMPASS UI ---
+  function buildCompass() {
+    const strip = $('compass-strip');
+    const directions = ['É', '', '', 'K', '', '', 'D', '', '', 'Ny', '', ''];
+    let html = '';
+    for(let i=0; i<4; i++) { directions.forEach(dir => { html += `<div class="compass-marker ${dir ? 'major' : ''}">${dir || '|'}</div>`; }); }
+    strip.innerHTML = html;
+  }
+  buildCompass();
+
+  const cWrap = document.querySelector('.compass-container');
+  let isDraggingCompass = false; let cStartX = 0; let currentCompassOffset = 0; let cStartOffset = 0;
+  
+  function handleCompassMove(clientX) {
+    if(!isDraggingCompass) return;
+    const dx = clientX - cStartX;
+    currentCompassOffset = cStartOffset + dx;
+    // Végtelenítés hatás: ha túlhúzzuk, visszaugrik egy ciklust
+    if(currentCompassOffset > 360) { currentCompassOffset -= 720; cStartOffset -= 720; }
+    if(currentCompassOffset < -360) { currentCompassOffset += 720; cStartOffset += 720; }
+    $('compass-strip').style.transform = `translateX(calc(-50% + ${currentCompassOffset}px))`;
+  }
+  cWrap.addEventListener('mousedown', e => { isDraggingCompass = true; cStartX = e.clientX; });
+  window.addEventListener('mousemove', e => handleCompassMove(e.clientX));
+  window.addEventListener('mouseup', () => { if(isDraggingCompass) { isDraggingCompass = false; cStartOffset = currentCompassOffset; }});
+  
+  cWrap.addEventListener('touchstart', e => { isDraggingCompass = true; cStartX = e.touches[0].clientX; }, {passive: true});
+  window.addEventListener('touchmove', e => handleCompassMove(e.touches[0].clientX), {passive: true});
+  window.addEventListener('touchend', () => { if(isDraggingCompass) { isDraggingCompass = false; cStartOffset = currentCompassOffset; }});
+
   // --- AUTH ---
   async function performAuth() {
     try {
@@ -1037,6 +1143,25 @@
     $('leaderboard-preview-list').innerHTML = renderList(10); $('full-leaderboard-list').innerHTML = renderList(50);
   }
 
+  window.openOnlinePlayers = () => {
+    const now = Date.now();
+    const onlinePlayers = allProfilesCache.filter(p => (now - (p.lastSeen||0)) < 120000);
+    
+    $('online-players-list').innerHTML = onlinePlayers.map(p => {
+      const r = getRankObj(p.elo);
+      return `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-white/5 hover:bg-slate-700/80 transition cursor-pointer group" onclick="showProfile('${p.uid}')">
+          <div class="flex items-center gap-3">
+            <div class="relative"><img src="${p.avatar}" class="w-10 h-10 rounded-full border border-white/10 object-cover group-hover:border-green-400 transition"><div class="absolute bottom-0 right-0 status-dot status-online"></div></div>
+            <span class="font-black text-sm text-slate-200 group-hover:text-white transition">${p.name}</span>
+          </div>
+          <div class="text-[10px] font-black uppercase tracking-widest ${r.c} inline-block px-2 py-0.5 rounded">${r.n}</div>
+        </div>`;
+    }).join('') || '<div class="text-center text-slate-500 text-sm py-4">Nincs más online játékos.</div>';
+    
+    openOverlay('overlay-online');
+  }
+
   async function checkForActiveGames() {
     try {
       const snap = await getDocs(collection(db, roomsCol)); let foundRoom = null;
@@ -1066,6 +1191,7 @@
   };
 
   $('btn-login-guest').onclick = async () => {
+    initAudio();
     if(!currentUser) currentUser = { uid: 'guest_' + Math.random().toString(36).substr(2, 9) };
     const name = $('input-guest-name').value.trim() || 'Felfedező_' + Math.floor(Math.random()*100);
     S.userData = { name, elo: 0, avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`, isGoogle: false, gamesPlayed:0, rankedWins:0, rankedLosses:0, totalDist:0, totalGuesses:0, totalScore:0, playTimeSeconds:0, lastSeen: Date.now() };
@@ -1073,6 +1199,7 @@
   };
 
   $('btn-login-google').onclick = async () => {
+    initAudio();
     if (!isOwnFirebase) {
       toast("A bejelentkezés emulálva a Canvas környezetben."); const name = "ProJátékos" + Math.floor(Math.random()*100);
       if(!currentUser) currentUser = { uid: 'canvas_user' };
@@ -1130,6 +1257,7 @@
   };
 
   window.menuAction = (mode) => {
+    initAudio();
     if(!currentUser) { toast("A folytatáshoz bejelentkezés szükséges!", true); return; }
     if(mode === 'ranked') { if(!S.userData.isGoogle) { toast("A Ranked módhoz Google bejelentkezés szükséges!", true); return; } startRankedQueue(); }
     else if(mode === 'party') { $('party-select').style.display = 'grid'; $('party-lobby').style.display = 'none'; openOverlay('overlay-party'); }
@@ -1201,7 +1329,6 @@
     }
   }
 
-  // Authentic Geoguessr-style Pro Countdown
   function startCountdown(callback) {
     const cd = $('overlay-countdown');
     const txt = $('countdown-text');
@@ -1213,6 +1340,7 @@
       txt.style.transform = 'scale(0.3)';
       txt.style.opacity = '1';
       txt.innerText = num;
+      SFX.tick();
       
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -1231,6 +1359,7 @@
         animateNumber(count);
       } else if(count === 0) {
         txt.style.color = '#4ade80';
+        SFX.start();
         animateNumber('GO!');
       } else {
         clearInterval(ival); 
@@ -1243,6 +1372,7 @@
 
   function playRound(isResume = false) {
     S.hasGuessed = false; S.timerSpeed = 1; $('hud-time').classList.remove('timer-alert');
+    $('danger-overlay').classList.remove('active'); $('big-timer-display').style.opacity = '0';
     $('btn-guess').disabled = true; $('btn-guess').innerHTML = 'Tipp beküldése <i class="fa-solid fa-map-pin ml-1"></i>';
     if(guessMarker) { guessMap.removeLayer(guessMarker); guessMarker = null; }
     $('map-wrapper').classList.remove('expanded');
@@ -1278,22 +1408,57 @@
   function startTimer() {
     clearInterval(S.timer); const t = S.settings.timePerRound;
     if(t === 0) { $('hud-time').innerText = '∞'; $('timer-bar').style.width = '0%'; return; }
-    S.timeLeft = t; $('timer-bar').style.background = 'var(--green)'; $('hud-time').classList.remove('text-red-400', 'timer-alert');
-    let realMs = t * 1000; const intervalMs = 100; 
+    
+    // DELTA-TIME ALAPÚ SZERVER/KLIENS IDŐZÍTŐ
+    S.lastTickTime = Date.now();
+    S.virtualElapsed = 0;
+    S.lastTickSec = t;
+    $('timer-bar').style.background = 'var(--green)'; $('hud-time').classList.remove('text-red-400', 'timer-alert');
+    $('danger-overlay').classList.remove('active'); $('big-timer-display').style.opacity = '0';
     
     S.timer = setInterval(() => {
       if(S.hasGuessed) return clearInterval(S.timer);
-      realMs -= (intervalMs * S.timerSpeed); S.timeLeft = realMs / 1000;
+      
+      const now = Date.now();
+      const delta = (now - S.lastTickTime) / 1000; // Eltelt másodperc az utolsó tick óta (lekezeli a tab alvást is!)
+      S.lastTickTime = now;
+      S.virtualElapsed += delta * S.timerSpeed;
+      S.timeLeft = Math.max(0, t - S.virtualElapsed);
+      
       $('hud-time').innerText = formatTime(Math.max(0, S.timeLeft));
       const pct = (S.timeLeft / t) * 100; $('timer-bar').style.width = `${Math.max(0, pct)}%`;
-      if(S.timeLeft < 10 && S.timeLeft > 0) { $('timer-bar').style.background = 'var(--red)'; if(S.timerSpeed > 1) $('hud-time').classList.add('timer-alert'); }
+      
+      const currentSec = Math.ceil(S.timeLeft);
+      
+      // Utolsó 10 másodperc effektek
+      if(S.timeLeft <= 10 && S.timeLeft > 0) { 
+        $('timer-bar').style.background = 'var(--red)'; 
+        if(S.timerSpeed > 1) $('hud-time').classList.add('timer-alert');
+        $('danger-overlay').classList.add('active');
+        $('big-timer-display').style.opacity = '1';
+        $('big-timer-display').innerText = currentSec;
+        
+        // Hang lejátszása másodpercenként
+        if (currentSec !== S.lastTickSec) {
+            SFX.tick();
+            $('big-timer-display').style.transform = 'translate(-50%, -50%) scale(1.2)';
+            setTimeout(() => { $('big-timer-display').style.transform = 'translate(-50%, -50%) scale(1)'; }, 100);
+            S.lastTickSec = currentSec;
+        }
+      } else {
+        $('danger-overlay').classList.remove('active');
+        $('big-timer-display').style.opacity = '0';
+      }
+      
       if(S.timeLeft <= 0) { clearInterval(S.timer); submitGuess(true); }
-    }, intervalMs);
+    }, 50); // Sűrűbb frissítés a simább animációért
   }
 
   window.submitGuess = async (auto = false) => {
     if(S.hasGuessed) return;
+    SFX.guess();
     S.hasGuessed = true; clearInterval(S.timer);
+    $('danger-overlay').classList.remove('active'); $('big-timer-display').style.opacity = '0';
     $('btn-guess').disabled = true; $('btn-guess').innerText = auto ? 'Idő lejárt!' : 'Tipp rögzítve!';
     $('map-wrapper').classList.remove('expanded');
 
@@ -1317,6 +1482,7 @@
   };
 
   function showRoundResults(players) {
+    SFX.result();
     const loc = S.locations[S.round - 1]; $('res-loc-name').innerText = loc.name || 'Helyszín';
     const myRes = players.find(p => p.uid === currentUser.uid);
     
@@ -1327,6 +1493,7 @@
        $('res-dist').innerText = (myRes && myRes.dmg) ? `Kaptál -${myRes.dmg} sebzést!` : (myRes && myRes.dmg === 0 ? "Nem sérültél" : "Időtúllépés");
        
        if (myRes && myRes.dmg > 0) {
+         SFX.damage();
          setTimeout(() => {
            $('res-points-container').classList.add('animate-[shake_0.3s_ease-in-out_2]', 'border-red-500');
            setTimeout(() => $('res-points-container').classList.remove('animate-[shake_0.3s_ease-in-out_2]', 'border-red-500'), 600);
@@ -1357,27 +1524,35 @@
 
     openOverlay('overlay-round-result');
 
-    // FIX: Térkép biztonságos újratöltése a felugró ablak megjelenése után garantált mérettel
+    // FIX: Térkép biztonságos újratöltése és Avatar pinek generálása
     setTimeout(() => {
       $('result-map-container').innerHTML = '<div id="actual-res-map"></div>';
       resultMap = L.map('actual-res-map', {zoomControl: false, attributionControl: false}).setView([loc.lat, loc.lng], 4);
       L.tileLayer(TILE_STREET, {maxZoom: 20}).addTo(resultMap);
       
-      const realMarker = L.marker([loc.lat, loc.lng], {icon: L.divIcon({className:'', html:'<div class="pin real"></div>', iconSize:[34,34], iconAnchor:[17,34]})}).addTo(resultMap);
+      const realHtml = `<div class="avatar-pin real"><img src="https://api.dicebear.com/7.x/shapes/svg?seed=goal&backgroundColor=84cc16"></div>`;
+      const realMarker = L.marker([loc.lat, loc.lng], {icon: L.divIcon({className:'', html: realHtml, iconSize:[48,48], iconAnchor:[24,48]})}).addTo(resultMap);
       const bounds = [[loc.lat, loc.lng]];
 
       players.forEach(p => {
         if(p.guess && p.guess.lat !== 0) {
-          const isMe = p.uid === currentUser.uid; const color = isMe ? '#3b82f6' : '#a855f7';
-          L.marker([p.guess.lat, p.guess.lng], {icon: L.divIcon({className:'', html:`<div class="pin ${isMe?'me':'other'}"></div>`, iconSize:[28,28], iconAnchor:[14,28]})}).addTo(resultMap);
+          const isMe = p.uid === currentUser.uid; 
+          const color = isMe ? '#3b82f6' : '#a855f7';
+          
+          // AVATAR PIN LÉTREHOZÁSA
+          const avatarHtml = `<div class="avatar-pin ${isMe ? 'me' : 'other'}"><img src="${p.avatar}"></div>`;
+          const m = L.marker([p.guess.lat, p.guess.lng], {icon: L.divIcon({className:'', html: avatarHtml, iconSize:[40,40], iconAnchor:[20,40]})}).addTo(resultMap);
+          
+          // TOOLTIP A NÉVVEL
+          m.bindTooltip(p.name, {direction: 'top', offset: [0, -40], opacity: 1});
+
           L.polyline([[loc.lat, loc.lng], [p.guess.lat, p.guess.lng]], {color: color, weight: 3, dashArray: '5, 10'}).addTo(resultMap);
           bounds.push([p.guess.lat, p.guess.lng]);
         }
       });
-      // Delaying the fitBounds slightly ensures the map has fully rendered in its flex container
       setTimeout(() => {
         resultMap.invalidateSize();
-        if(bounds.length > 1) resultMap.fitBounds(bounds, {padding: [40,40], animate: true, duration: 1});
+        if(bounds.length > 1) resultMap.fitBounds(bounds, {padding: [50,50], animate: true, duration: 1});
       }, 100);
     }, 400);
 
@@ -1395,6 +1570,7 @@
   }
 
   window.nextRoundAction = async () => {
+    SFX.guess();
     if(S.mode === 'solo') {
       if(S.round >= S.settings.rounds) showFinalResults([{uid: currentUser.uid, name: S.userData.name, score: S.score, avatar: S.userData.avatar}]);
       else { S.round++; closeOverlay('overlay-round-result'); playRound(); }
@@ -1413,6 +1589,7 @@
 
   async function showFinalResults(players) {
     closeOverlay('overlay-round-result'); 
+    SFX.start();
     
     if(S.mode === 'ranked') players.sort((a,b) => (b.hp||0) - (a.hp||0));
     else players.sort((a,b) => b.score - a.score);
@@ -1617,6 +1794,7 @@
 
   window.leaveGame = async () => {
     clearInterval(S.timer);
+    $('danger-overlay').classList.remove('active'); $('big-timer-display').style.opacity = '0';
     if(unsubscribeRoom) { unsubscribeRoom(); unsubscribeRoom = null; }
     document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
     
