@@ -67,17 +67,15 @@
 
     /* StreetView */
     #sv-container { position: absolute; inset: 0; z-index: 1; background: #000; overflow: hidden; }
-    #sv-pano { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; transition: opacity 0.5s ease-in-out; }
     #sv-iframe {
       position: absolute;
-      inset: -6%;
-      width: 112%;
-      height: 112%;
+      top: -78px;
+      left: 0;
+      width: 100%;
+      height: calc(100% + 78px);
       border: none;
       pointer-events: auto;
       transition: opacity 0.5s ease-in-out;
-      transform: scale(1.12);
-      transform-origin: center;
     }
     .sv-loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050810; z-index: 3; pointer-events: none; transition: opacity 0.4s ease-out; }
     
@@ -91,12 +89,12 @@
     #sv-return-btn:hover { background: rgba(0,0,0,0.9); transform: translateX(-50%) scale(1.05); }
 
     /* HUD */
-    #hud { position: absolute; top: 3.5rem; left: 0; right: 0; z-index: 10; padding: 1.5rem; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; }
+    #hud { position: absolute; top: 1.5rem; left: 0; right: 0; z-index: 10; padding: 1.5rem; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; }
     .hud-box { pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s; }
     .hud-box:hover { transform: scale(1.02); }
     
     /* Ranked Authentic HUD */
-    #ranked-hud { position: absolute; top: 3.5rem; left: 0; right: 0; z-index: 15; padding: 1rem 2rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    #ranked-hud { position: absolute; top: 1.5rem; left: 0; right: 0; z-index: 15; padding: 1rem 2rem; display: none; justify-content: space-between; align-items: flex-start; pointer-events: none; }
     .ranked-player-box { width: 300px; display: flex; align-items: center; gap: 1rem; pointer-events: auto; }
     .score-bar-container { flex: 1; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); height: 28px; border-radius: 6px; position: relative; overflow: hidden; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .score-bar-fill { height: 100%; background: linear-gradient(180deg, #a3e635, #65a30d); width: 100%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -106,22 +104,12 @@
     .timer-alert { animation: pulse-red 0.5s infinite alternate; }
     @keyframes pulse-red { from { color: white; text-shadow: none; } to { color: #ef4444; text-shadow: 0 0 10px #ef4444; transform: scale(1.1); } }
 
-    /* Interactive Compass UI */
-    .compass-container { position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); pointer-events: auto; width: 300px; height: 36px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.4); z-index: 20; transition: border-color 0.3s; }
-    .compass-container:hover { border-color: rgba(59,130,246,0.5); }
-    .compass-strip { position: absolute; height: 100%; display: flex; align-items: center; font-weight: 900; font-size: 0.85rem; color: rgba(255,255,255,0.8); white-space: nowrap; pointer-events: none; transition: transform 0.1s linear; }
-    .compass-marker { display: inline-flex; justify-content: center; width: 60px; pointer-events: none; }
-    .compass-marker.major { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); font-size: 1.1rem; }
-    .compass-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.9); transform: translateX(-50%); box-shadow: 0 0 10px white, 0 0 5px #3b82f6; z-index: 5; pointer-events: none; }
-    .compass-hint { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; pointer-events: none; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
-    .compass-container:hover .compass-hint { opacity: 1; }
-
     /* Big Timer Display */
     #big-timer-display { font-size: 15rem; top: 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.2s, transform 0.2s; text-shadow: 0 0 50px rgba(239,68,68,0.8); }
 
     /* Map Wrapper */
     #map-wrapper {
-      position: absolute; bottom: 1.5rem; right: 1.5rem; z-index: 20;
+      position: absolute; bottom: 1.5rem; right: 4.75rem; z-index: 20;
       width: 340px; height: 260px; border-radius: 1.2rem;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 12px 40px rgba(0,0,0,0.8); opacity: 0.85;
@@ -129,13 +117,13 @@
       border: 2px solid rgba(255,255,255,0.2); pointer-events: auto;
     }
     #map-wrapper:hover, #map-wrapper.expanded {
-      opacity: 1; width: min(650px, calc(100vw - 2rem)); height: min(500px, calc(100vh - 8rem));
+      opacity: 1; width: min(650px, calc(100vw - 6.25rem)); height: min(500px, calc(100vh - 8rem));
       box-shadow: 0 20px 50px rgba(0,0,0,0.9);
     }
     @media(max-width: 768px) {
-      #map-wrapper { width: calc(100vw - 1.5rem); height: 200px; bottom: 0.75rem; right: 0.75rem; opacity: 0.95; }
+      #map-wrapper { width: calc(100vw - 4.75rem); height: 200px; bottom: 0.75rem; right: 4rem; opacity: 0.95; }
       #map-wrapper.expanded { height: 60vh; }
-      #hud, #ranked-hud { top: 3.5rem; padding: 0.75rem; }
+      #hud, #ranked-hud { top: 1rem; padding: 0.75rem; }
       #ranked-hud { flex-direction: column; gap: 0.5rem; align-items: center; }
       .ranked-player-box { width: 100%; justify-content: space-between; }
       .ranked-player-box.reverse { flex-direction: row-reverse; }
@@ -151,6 +139,7 @@
     #btn-guess {
       background: var(--green); color: white; border: none;
       padding: 0.8rem 0; width: 100%; font-weight: 900; font-size: 1.1rem;
+      border-radius: 10px;
       cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: none; text-transform: uppercase; letter-spacing: 1px;
     }
@@ -160,7 +149,8 @@
     @media(max-width: 768px) { #btn-guess { display: block; padding: 0.7rem 0; font-size: 1rem; } }
 
     /* Custom Avatar Pins */
-    .avatar-pin { position: relative; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10000 !important; }
+    .avatar-pin { position: relative; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10000 !important; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .avatar-pin.result:hover { transform: scale(1.2); }
     .avatar-pin img { width: 40px; height: 40px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; z-index: 10; background: #1e293b; object-fit: cover; }
     .avatar-pin::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid white; z-index: 5; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
     
@@ -168,6 +158,7 @@
     .avatar-pin.me::after { border-top-color: #3b82f6; }
     .avatar-pin.other img { border-color: #a855f7; }
     .avatar-pin.other::after { border-top-color: #a855f7; }
+    .avatar-pin.real { width: 48px; height: 48px; }
     .avatar-pin.real img { border-color: #84cc16; width: 48px; height: 48px; border-width: 4px; animation: bounce-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .avatar-pin.real::after { border-top-color: #84cc16; bottom: -10px; border-left-width: 10px; border-right-width: 10px; border-top-width: 14px; }
 
@@ -642,20 +633,10 @@
       <div class="w-16 h-16 border-4 border-white/10 border-t-green-400 rounded-full animate-spin"></div>
       <p class="mt-6 font-black tracking-[0.2em] text-slate-400 text-xs uppercase">Helyszín betöltése...</p>
     </div>
-    <div id="sv-pano"></div>
     <iframe id="sv-iframe" src="" allowfullscreen></iframe>
     <!-- Piros vészjelző vignette az utolsó 10 másodpercben -->
     <div class="vignette danger-vignette" id="danger-overlay"></div>
   </div>
-
-  <!-- INTERACTIVE COMPASS (Auto synced via JS API) -->
-  <div class="compass-container group">
-    <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none"></div>
-    <div class="compass-strip" id="compass-strip"></div>
-    <div class="compass-center-line"></div>
-    <div class="compass-hint">Iránytű (Auto)</div>
-  </div>
-
   <!-- BIG TIMER DISPLAY (LAST 10 SECONDS) -->
   <div id="big-timer-display" class="absolute text-center pointer-events-none font-black text-red-500">10</div>
 
@@ -782,8 +763,10 @@
     messagingSenderId: "823580681228",
     appId: "1:823580681228:web:9e5958436f4247df083a29"
   };
+  
+  // API KULCS NÉLKÜLI VERZIÓ - VISSZAÁLLÍTVA!
   const GOOGLE_MAPS_EMBED_KEY = myFirebaseConfig.apiKey;
-  const USE_GOOGLE_MAPS_EMBED_API = true; // Bekapcsoltam a pontos iránytűhöz!
+  const USE_GOOGLE_MAPS_EMBED_API = false;
   
   const isOwnFirebase = myFirebaseConfig.apiKey !== "";
   let configToUse = isOwnFirebase ? myFirebaseConfig : {};
@@ -821,13 +804,6 @@
   };
 
   const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-  // Dinamikus Google Maps API betöltés az égtáj követéshez
-  const mapsScript = document.createElement('script');
-  mapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_EMBED_KEY}&callback=initMapsAPI`;
-  mapsScript.async = true;
-  document.head.appendChild(mapsScript);
-  window.initMapsAPI = () => { window.mapsApiLoaded = true; };
 
   // --- HANGOK (ÚJ, PRÉMIUM Web Audio API Synthesizer) ---
   const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1100,18 +1076,6 @@
     if(elo<2000) return {n:'Gyémánt', c:'text-cyan-400 bg-cyan-950/50 border border-cyan-500/30'};
     return {n:'Mester', c:'text-purple-400 bg-purple-950/50 border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]'};
   }
-
-  // --- INTERACTIVE COMPASS UI ---
-  function buildCompass() {
-    const strip = $('compass-strip');
-    const directions = ['É', '', '', 'K', '', '', 'D', '', '', 'Ny', '', ''];
-    let html = '';
-    for(let i=0; i<4; i++) { directions.forEach(dir => { html += `<div class="compass-marker ${dir ? 'major' : ''}">${dir || '|'}</div>`; }); }
-    strip.innerHTML = html;
-  }
-  buildCompass();
-  let currentCompassOffset = 0;
-
   // --- AUTH ---
   async function performAuth() {
     try {
@@ -1306,14 +1270,27 @@
   const TILE_SAT = 'https://mt1.google.com/vt/lyrs=y&hl=hu&x={x}&y={y}&z={z}';
   let currentTileLayer = null;
 
+  // Határok (Bounds) létrehozása, hogy ne duplázódjon a világtérkép!
+  const mapBounds = L.latLngBounds([[-90, -180], [90, 180]]);
+
   function initMap() {
     if(guessMap) { guessMap.remove(); guessMarker = null; }
-    guessMap = L.map('guess-map', { center: [20,0], zoom: 2, zoomControl: false, attributionControl: false });
+    
+    // Max Bounds beállítása
+    guessMap = L.map('guess-map', { 
+      center: [20,0], 
+      zoom: 2, 
+      zoomControl: false, 
+      attributionControl: false,
+      maxBounds: mapBounds, 
+      maxBoundsViscosity: 1.0 
+    });
+    
     setMapTiles();
     guessMap.on('click', (e) => {
       if($('btn-guess').disabled && S.hasGuessed) return;
-      // Z-index prioritás hozzáadása inline és osztályosan is
-      if(!guessMarker) guessMarker = L.marker(e.latlng, {icon: L.divIcon({className:'', html:`<div class="avatar-pin me" style="z-index: 10000 !important;"><img src="${S.userData.avatar}"></div>`, iconSize:[40,40], iconAnchor:[20,40]})}).addTo(guessMap);
+      // Z-index prioritás és pontos horgonypont ([20, 48] hogy pontosan a kurzor hegyén legyen a pin)
+      if(!guessMarker) guessMarker = L.marker(e.latlng, {icon: L.divIcon({className:'', html:`<div class="avatar-pin me" style="z-index: 10000 !important;"><img src="${S.userData.avatar}"></div>`, iconSize:[40,48], iconAnchor:[20,48]})}).addTo(guessMap);
       else guessMarker.setLatLng(e.latlng);
       $('btn-guess').disabled = false; $('map-wrapper').classList.add('expanded');
     });
@@ -1324,7 +1301,11 @@
   }
 
   window.toggleMapType = () => { S.mapSatellite = !S.mapSatellite; setMapTiles(); $('btn-map-toggle').innerHTML = S.mapSatellite ? '<i class="fa-solid fa-map mr-1"></i>Utcai' : '<i class="fa-solid fa-satellite mr-1"></i>Műhold'; };
-  function setMapTiles() { if(currentTileLayer) guessMap.removeLayer(currentTileLayer); currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 20 }).addTo(guessMap); }
+  function setMapTiles() { 
+    if(currentTileLayer) guessMap.removeLayer(currentTileLayer); 
+    // noWrap: true akadályozza meg a térkép bal-jobb ismétlődését
+    currentTileLayer = L.tileLayer(S.mapSatellite ? TILE_SAT : TILE_STREET, { maxZoom: 20, minZoom: 2, noWrap: true, bounds: mapBounds }).addTo(guessMap); 
+  }
   window.resetMapView = () => { if(guessMap) guessMap.setView([20,0], 2); };
 
   // --- GAME LOGIC ---
@@ -1336,48 +1317,13 @@
     closeOverlay('overlay-solo'); showScr('screen-game'); S.playTimeStart = Date.now(); playRound();
   };
 
-  // Google Maps JS API beépítése az iránytű pontos szinkronizálásához
+  // Régi Street View visszaállítva az API kulcs nélküli beágyazáshoz
   window.resetStreetView = () => {
     if (S.locations && S.locations[S.round - 1]) {
       const loc = S.locations[S.round - 1]; 
-      
-      if (window.mapsApiLoaded && typeof google !== 'undefined') {
-        $('sv-iframe').style.display = 'none';
-        $('sv-pano').style.display = 'block';
-        $('sv-pano').style.opacity = '0';
-        
-        const panorama = new google.maps.StreetViewPanorama($('sv-pano'), {
-            position: {lat: loc.lat, lng: loc.lng},
-            pov: {heading: 0, pitch: 0},
-            zoom: 1,
-            addressControl: false,
-            showRoadLabels: false,
-            linksControl: true,
-            panControl: false, // Egérrel teljes képernyős mozgás gombok nélkül
-            enableCloseButton: false,
-            fullscreenControl: false,
-            zoomControl: false,
-            motionTracking: false
-        });
-        
-        panorama.addListener('pov_changed', () => {
-            const heading = panorama.getPov().heading;
-            currentCompassOffset = -heading * 2;
-            $('compass-strip').style.transform = `translateX(calc(-50% + ${currentCompassOffset}px))`;
-        });
-
-        // Simuláljuk a betöltési eseményt a rendszer számára
-        setTimeout(() => {
-          $('sv-pano').style.opacity = '1';
-          if(window.onSvLoadedRef) window.onSvLoadedRef();
-        }, 1000);
-      } else {
-        // Fallback az iframere, ha nincs maps API
-        $('sv-pano').style.display = 'none';
-        $('sv-iframe').style.display = 'block';
-        const key = encodeURIComponent(GOOGLE_MAPS_EMBED_KEY || ''); const location = `${loc.lat},${loc.lng}`;
-        $('sv-iframe').src = USE_GOOGLE_MAPS_EMBED_API && key ? `https://www.google.com/maps/embed/v1/streetview?key=${key}&location=${location}&heading=0&pitch=0&fov=90` : `https://www.google.com/maps?layer=c&cbll=${location}&cbp=12,0,0,0,0&output=svembed`;
-      }
+      const key = encodeURIComponent(GOOGLE_MAPS_EMBED_KEY || ''); 
+      const location = `${loc.lat},${loc.lng}`;
+      $('sv-iframe').src = USE_GOOGLE_MAPS_EMBED_API && key ? `https://www.google.com/maps/embed/v1/streetview?key=${key}&location=${location}&heading=0&pitch=0&fov=90` : `https://www.google.com/maps?layer=c&cbll=${location}&cbp=12,0,0,0,0&output=svembed`;
     }
   };
 
@@ -1453,10 +1399,9 @@
     $('sv-loader').style.opacity = '1'; $('sv-iframe').style.opacity = '0';
     let svLoaded = false;
     
-    window.onSvLoadedRef = () => {
+    const onSvLoaded = () => {
       if(svLoaded) return; svLoaded = true;
-      $('sv-loader').style.opacity = '0'; 
-      $('sv-iframe').style.opacity = '1';
+      $('sv-loader').style.opacity = '0'; $('sv-iframe').style.opacity = '1';
       if(!isResume) {
         startCountdown(() => startTimer());
       } else {
@@ -1464,9 +1409,9 @@
       }
     };
 
-    $('sv-iframe').onload = window.onSvLoadedRef;
+    $('sv-iframe').onload = onSvLoaded;
     resetStreetView();
-    setTimeout(window.onSvLoadedRef, 4000); // 4mp után mindenképp indul
+    setTimeout(onSvLoaded, 4000); // 4mp után mindenképp indul
 
     $('hud-round').innerText = S.round; $('hud-score').innerText = S.score;
 
@@ -1606,11 +1551,12 @@
 
     setTimeout(() => {
       $('result-map-container').innerHTML = '<div id="actual-res-map"></div>';
-      resultMap = L.map('actual-res-map', {zoomControl: false, attributionControl: false}).setView([loc.lat, loc.lng], 4);
-      L.tileLayer(TILE_STREET, {maxZoom: 20}).addTo(resultMap);
+      // MaxBounds a results térképre is, hogy ne ismétlődjön!
+      resultMap = L.map('actual-res-map', {zoomControl: false, attributionControl: false, maxBounds: mapBounds, maxBoundsViscosity: 1.0}).setView([loc.lat, loc.lng], 4);
+      L.tileLayer(TILE_STREET, {maxZoom: 20, minZoom: 2, noWrap: true, bounds: mapBounds}).addTo(resultMap);
       
-      const realHtml = `<div class="avatar-pin real"><img src="https://api.dicebear.com/7.x/shapes/svg?seed=goal&backgroundColor=84cc16"></div>`;
-      const realMarker = L.marker([loc.lat, loc.lng], {icon: L.divIcon({className:'', html: realHtml, iconSize:[48,48], iconAnchor:[24,48]})}).addTo(resultMap);
+      const realHtml = `<div class="avatar-pin real result"><img src="https://api.dicebear.com/7.x/shapes/svg?seed=goal&backgroundColor=84cc16"></div>`;
+      const realMarker = L.marker([loc.lat, loc.lng], {icon: L.divIcon({className:'', html: realHtml, iconSize:[48,58], iconAnchor:[24,58]})}).addTo(resultMap);
       const bounds = [[loc.lat, loc.lng]];
 
       players.forEach(p => {
@@ -1618,9 +1564,9 @@
           const isMe = p.uid === currentUser.uid; 
           const color = isMe ? '#3b82f6' : '#a855f7';
           
-          // AVATAR PIN LÉTREHOZÁSA (Fix méret, z-index a Leaflet-hez igazítva)
-          const avatarHtml = `<div class="avatar-pin ${isMe ? 'me' : 'other'}"><img src="${p.avatar}"></div>`;
-          const m = L.marker([p.guess.lat, p.guess.lng], {icon: L.divIcon({className:'', html: avatarHtml, iconSize:[40,40], iconAnchor:[20,40]})}).addTo(resultMap);
+          // AVATAR PIN LÉTREHOZÁSA (Fix méret, z-index a Leaflet-hez igazítva, anchor pontosítva)
+          const avatarHtml = `<div class="avatar-pin result ${isMe ? 'me' : 'other'}"><img src="${p.avatar}"></div>`;
+          const m = L.marker([p.guess.lat, p.guess.lng], {icon: L.divIcon({className:'', html: avatarHtml, iconSize:[40,48], iconAnchor:[20,48]})}).addTo(resultMap);
           
           m.bindTooltip(p.name, {direction: 'top', offset: [0, -40], opacity: 1});
 
